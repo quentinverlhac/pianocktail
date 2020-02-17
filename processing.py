@@ -47,10 +47,10 @@ processed_labels_df = get_processed_labels(config.EMOTIFY_LABELS_PATH)
 
 # Dumping songs from the emotify dataset in the emotify dump file
 path_list = []
-for outer_path in os.listdir(config.EMOTIFY_DATA_PATH):
-    if os.path.isdir(os.path.join(config.EMOTIFY_DATA_PATH, outer_path)):
-        for inner_path in os.listdir(os.path.join(config.EMOTIFY_DATA_PATH, outer_path)):
-            path_list.append(os.path.join(config.EMOTIFY_DATA_PATH, outer_path, inner_path))
+for outer_path in os.listdir(config.EMOTIFY_SAMPLES_PATH):
+    if os.path.isdir(os.path.join(config.EMOTIFY_SAMPLES_PATH, outer_path)):
+        for inner_path in os.listdir(os.path.join(config.EMOTIFY_SAMPLES_PATH, outer_path)):
+            path_list.append(os.path.join(config.EMOTIFY_SAMPLES_PATH, outer_path, inner_path))
 
 dump_all_songs(path_list, config.EMOTIFY_DUMP_PATH)
 
@@ -62,5 +62,5 @@ for time_series in tqdm(all_time_series):
     all_mel_spectrogram.append(librosa.feature.melspectrogram(y=np.array(time_series, dtype=np.float)))
 
 # Dumping spectrograms in another file
-with open(config.EMOTIFY_SPECTROGRAM_PATH,"wb") as f:
-    pkl.dump(all_mel_spectrogram,f)
+with open(config.EMOTIFY_SPECTROGRAM_PATH, "wb") as f:
+    pkl.dump(all_mel_spectrogram, f)
