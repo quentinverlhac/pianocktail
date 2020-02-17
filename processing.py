@@ -59,7 +59,7 @@ with open(config.EMOTIFY_DUMP_PATH, "rb") as file:
 
 all_mel_spectrogram = []
 for time_series in tqdm(all_time_series):
-    all_mel_spectrogram.append(librosa.feature.melspectrogram(y=np.array(time_series, dtype=np.float)))
+    all_mel_spectrogram.append(librosa.feature.melspectrogram(y=np.array(time_series, dtype=np.float),sr=config.SAMPLING_RATE,hop_length=config.FFT_HOP))
 
 # Dumping spectrograms in another file
 with open(config.EMOTIFY_SPECTROGRAM_PATH, "wb") as f:
