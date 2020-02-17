@@ -9,5 +9,11 @@ Download datasets and add them in the `data` folder, matching paths defined in `
 
 ## Requirements
 
+Make sure you have `ffmpeg` installed locally.
+- `sudo apt install ffmpeg` on Ubuntu.
+- `brew install ffmpeg` on macOS.
+
+`pip install -r requirements.txt`
+
 To update requirements.txt:
 `pip freeze > requirements.txt`
