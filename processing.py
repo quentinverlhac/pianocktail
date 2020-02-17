@@ -2,7 +2,6 @@ import librosa.display
 import os
 import pickle as pkl
 
-import librosa.display
 import numpy as np
 import pandas as pd
 from pydub import AudioSegment
@@ -29,14 +28,14 @@ def get_raw_data(path):
     return segment.get_array_of_samples()
 
 
-def dump_all_songs(songs_paths, dump_paths):
+def dump_all_songs(songs_paths, dump_path):
     """
     Dumps all songs with path in the list to a binary file on the dump path
     """
     song_list = []
-    for i in tqdm(range(config.DEV_MODE_SAMPLE_NUMBER if config.IS_DEV_MODE else len(path_list))):
-        song_list.append(get_raw_data(path_list[i]))
-    with open(config.EMOTIFY_DUMP_PATH, 'wb') as f:
+    for i in tqdm(range(config.DEV_MODE_SAMPLE_NUMBER if config.IS_DEV_MODE else len(songs_paths))):
+        song_list.append(get_raw_data(songs_paths[i]))
+    with open(dump_path, 'wb') as f:
         pkl.dump(song_list, f)
 
 
