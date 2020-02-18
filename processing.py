@@ -47,11 +47,11 @@ raw_labels_df = get_raw_labels(config.EMOTIFY_LABELS_CSV_PATH)
 labels = []
 
 # Dumping songs from the emotify dataset in the emotify dump file
-path_list = []
+songs_paths = []
 for outer_path in os.listdir(config.EMOTIFY_SAMPLES_PATH):
     if os.path.isdir(os.path.join(config.EMOTIFY_SAMPLES_PATH, outer_path)):
         for inner_path in os.listdir(os.path.join(config.EMOTIFY_SAMPLES_PATH, outer_path)):
-            path_list.append(os.path.join(config.EMOTIFY_SAMPLES_PATH, outer_path, inner_path))
+            songs_paths.append(os.path.join(config.EMOTIFY_SAMPLES_PATH, outer_path, inner_path))
             # Get the label row(s) that match the song (genre and id)
             matching_label_rows = raw_labels_df.loc[(raw_labels_df["genre"] == outer_path) & (raw_labels_df["track id"] == int(inner_path.split(".")[0]))]
             # Select only emotion columns and convert the row as list 
