@@ -32,15 +32,12 @@ def get_raw_data(path):
     return segment.get_array_of_samples()
 
 
-def dump_all_songs(songs_paths, dump_path):
+def dump_elements(elements, dump_path):
     """
-    Dumps all songs with path in the list to a binary file on the dump path
+    Dumps all elements in the list to a binary file on the dump path
     """
-    song_list = []
-    for i in tqdm(range(config.DEV_MODE_SAMPLE_NUMBER if config.IS_DEV_MODE else len(songs_paths))):
-        song_list.append(get_raw_data(songs_paths[i]))
     with open(dump_path, 'wb') as f:
-        pkl.dump(song_list, f)
+        pkl.dump(elements, f)
 
 
 # Load labels and process them.
@@ -64,9 +61,15 @@ for outer_path in os.listdir(config.EMOTIFY_SAMPLES_PATH):
                 raise ValueError("matching_label_lists has more than one matching song: {}".format(matching_label_lists))
             labels.append(matching_label_lists[0])
 
-dump_all_songs(path_list, config.EMOTIFY_DUMP_PATH)
 
-with open(config.EMOTIFY_DUMP_PATH, "rb") as file:
+song_list = []
+for i in tqdm(range(config.DEV_MODE_SAMPLE_NUMBER if config.IS_DEV_MODE else len(songs_paths))):
+    song_list.append(get_raw_data(songs_paths[i]))
+
+dump_elements(song_list, config.EMOTIFY_SAMPLES_DUMP_PATH)
+dump_elements(labels[:len(song_list)], config.EMOTIFY_LABELS_DUMP_PATH)
+
+with open(config.EMOTIFY_SAMPLES_DUMP_PATH, "rb") as file:
     all_time_series = pkl.load(file)
 
 all_mel_spectrogram = []
@@ -74,5 +77,4 @@ for time_series in tqdm(all_time_series):
     all_mel_spectrogram.append(librosa.feature.melspectrogram(y=np.array(time_series, dtype=np.float),sr=config.SAMPLING_RATE,hop_length=config.FFT_HOP))
 
 # Dumping spectrograms in another file
-with open(config.EMOTIFY_SPECTROGRAM_PATH, "wb") as f:
-    pkl.dump(all_mel_spectrogram, f)
+dump_elements(all_mel_spectrogram, config.EMOTIFY_SPECTROGRAM_DUMP_PATH)
