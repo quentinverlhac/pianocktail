@@ -11,6 +11,10 @@ import config
 
 
 def get_raw_labels(path):
+    '''
+    Load labels and process them.
+    9 columns between 0 and 1 represent the percentage of respondants who tagged the song with the corresponding emotion.
+    '''
     df = pd.read_csv(path)
     # remove leading spaces
     df.rename(columns=lambda s: s.strip(), inplace=True)
@@ -53,39 +57,45 @@ def dump_elements(elements, dump_path):
     with open(dump_path, 'wb') as f:
         pkl.dump(elements, f)
 
+def load_dump(dump_path):
+    """
+    Load the content of the file at dump path
+    """
+    with open(config.dump_path, "rb") as file:
+        return pkl.load(file)
 
-# Load labels and process them.
-# 9 columns between 0 and 1 represent the percentage of respondants who tagged the song with the corresponding emotion.
+def import_and_dump_raw_dataset():
+    """
+    Import labels and samples from original dataset. 
+    Process them and dump the output as pickle files.
+    """
+    raw_labels_df = get_raw_labels(config.EMOTIFY_LABELS_CSV_PATH)
+    labels = []
 
-raw_labels_df = get_raw_labels(config.EMOTIFY_LABELS_CSV_PATH)
-labels = []
+    songs_paths = []
+    for outer_path in os.listdir(config.EMOTIFY_SAMPLES_PATH):
+        if os.path.isdir(os.path.join(config.EMOTIFY_SAMPLES_PATH, outer_path)):
+            for inner_path in os.listdir(os.path.join(config.EMOTIFY_SAMPLES_PATH, outer_path)):
+                # samples
+                songs_paths.append(os.path.join(config.EMOTIFY_SAMPLES_PATH, outer_path, inner_path))
+                # labels
+                genre = outer_path
+                track_id = int(inner_path.split(".")[0])
+                labels.append(get_label_emotion_scores_for_track(raw_labels_df, genre, track_id))
 
-# Dumping songs from the emotify dataset in the emotify dump file
-songs_paths = []
-for outer_path in os.listdir(config.EMOTIFY_SAMPLES_PATH):
-    if os.path.isdir(os.path.join(config.EMOTIFY_SAMPLES_PATH, outer_path)):
-        for inner_path in os.listdir(os.path.join(config.EMOTIFY_SAMPLES_PATH, outer_path)):
-            # samples
-            songs_paths.append(os.path.join(config.EMOTIFY_SAMPLES_PATH, outer_path, inner_path))
-            # labels
-            genre = outer_path
-            track_id = int(inner_path.split(".")[0])
-            labels.append(get_label_emotion_scores_for_track(raw_labels_df, genre, track_id))
+    song_list = []
+    for i in tqdm(range(config.DEV_MODE_SAMPLE_NUMBER if config.IS_DEV_MODE else len(songs_paths))):
+        song_list.append(get_raw_data(songs_paths[i]))
 
+    all_mel_spectrogram = []
+    for time_series in tqdm(song_list):
+        all_mel_spectrogram.append(librosa.feature.melspectrogram(y=np.array(time_series, dtype=np.float),sr=config.SAMPLING_RATE,hop_length=config.FFT_HOP))
+    
+    # Dumping songs from the emotify dataset in the emotify dump file
+    dump_elements(song_list, config.EMOTIFY_SAMPLES_DUMP_PATH)
+    dump_elements(labels[:len(song_list)], config.EMOTIFY_LABELS_DUMP_PATH)
+    # Dumping song spectrograms
+    dump_elements(all_mel_spectrogram, config.EMOTIFY_SPECTROGRAM_DUMP_PATH)   
 
-song_list = []
-for i in tqdm(range(config.DEV_MODE_SAMPLE_NUMBER if config.IS_DEV_MODE else len(songs_paths))):
-    song_list.append(get_raw_data(songs_paths[i]))
-
-dump_elements(song_list, config.EMOTIFY_SAMPLES_DUMP_PATH)
-dump_elements(labels[:len(song_list)], config.EMOTIFY_LABELS_DUMP_PATH)
-
-with open(config.EMOTIFY_SAMPLES_DUMP_PATH, "rb") as file:
-    all_time_series = pkl.load(file)
-
-all_mel_spectrogram = []
-for time_series in tqdm(all_time_series):
-    all_mel_spectrogram.append(librosa.feature.melspectrogram(y=np.array(time_series, dtype=np.float),sr=config.SAMPLING_RATE,hop_length=config.FFT_HOP))
-
-# Dumping spectrograms in another file
-dump_elements(all_mel_spectrogram, config.EMOTIFY_SPECTROGRAM_DUMP_PATH)
+if __name__ == '__main__':
+    import_and_dump_raw_dataset()
