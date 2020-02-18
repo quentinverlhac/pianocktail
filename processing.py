@@ -8,6 +8,7 @@ from pydub import AudioSegment
 from tqdm import tqdm
 
 import config
+import utils
 
 
 def get_raw_labels(path):
@@ -46,14 +47,6 @@ def get_raw_data(path):
     return segment.get_array_of_samples()
 
 
-def dump_elements(elements, dump_path):
-    """
-    Dumps all elements in the list to a binary file on the dump path
-    """
-    with open(dump_path, 'wb') as f:
-        pkl.dump(elements, f)
-
-
 # Load labels and process them.
 # 9 columns between 0 and 1 represent the percentage of respondants who tagged the song with the corresponding emotion.
 
@@ -77,8 +70,8 @@ song_list = []
 for i in tqdm(range(config.DEV_MODE_SAMPLE_NUMBER if config.IS_DEV_MODE else len(songs_paths))):
     song_list.append(get_raw_data(songs_paths[i]))
 
-dump_elements(song_list, config.EMOTIFY_SAMPLES_DUMP_PATH)
-dump_elements(labels[:len(song_list)], config.EMOTIFY_LABELS_DUMP_PATH)
+utils.dump_elements(song_list, config.EMOTIFY_SAMPLES_DUMP_PATH)
+utils.dump_elements(labels[:len(song_list)], config.EMOTIFY_LABELS_DUMP_PATH)
 
 with open(config.EMOTIFY_SAMPLES_DUMP_PATH, "rb") as file:
     all_time_series = pkl.load(file)
@@ -88,4 +81,4 @@ for time_series in tqdm(all_time_series):
     all_mel_spectrogram.append(librosa.feature.melspectrogram(y=np.array(time_series, dtype=np.float),sr=config.SAMPLING_RATE,hop_length=config.FFT_HOP))
 
 # Dumping spectrograms in another file
-dump_elements(all_mel_spectrogram, config.EMOTIFY_SPECTROGRAM_DUMP_PATH)
+utils.dump_elements(all_mel_spectrogram, config.EMOTIFY_SPECTROGRAM_DUMP_PATH)
