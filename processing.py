@@ -1,7 +1,7 @@
-import librosa.display
 import os
 import pickle as pkl
 
+import librosa.display
 import numpy as np
 import pandas as pd
 from pydub import AudioSegment
@@ -18,10 +18,12 @@ def get_raw_labels(path):
     df.drop(columns=["mood", "liked", "disliked", "age", "gender", "mother tongue"], inplace=True)
     # get the average score on all user answers for each song
     grouped_df = df.groupby(['genre', 'track id']).mean().reset_index()
-    # Song ids are split between genre and range between 1 and 100 in data folders, but it ranges between 1 and 400 in labels.csv
+    # Song ids are split between genre and range between 1 and 100 in data folders,
+    # but range between 1 and 400 in labels.csv
     # This line changes ids from labels.csv to match data file names
     grouped_df['track id'] = ((grouped_df['track id'] - 1) % 100) + 1
     return grouped_df
+
 
 def get_label_emotion_scores_for_track(raw_labels_df, genre, track_id):
     """
@@ -34,9 +36,10 @@ def get_label_emotion_scores_for_track(raw_labels_df, genre, track_id):
     # Select only emotion columns and convert the row as list 
     matching_label_lists = matching_label_rows[config.EMOTIFY_EMOTIONS_ORDERED_LIST].values.tolist()
     # Check that there is only one matching song in labels
-    if (len(matching_label_lists) > 1):
+    if len(matching_label_lists) > 1:
         raise ValueError("matching_label_lists has more than one matching song: {}".format(matching_label_lists))
     return matching_label_lists[0]
+
 
 def get_raw_data(path):
     """Convert to mono and return an array of samples"""
@@ -72,7 +75,6 @@ for outer_path in os.listdir(config.EMOTIFY_SAMPLES_PATH):
             track_id = int(inner_path.split(".")[0])
             labels.append(get_label_emotion_scores_for_track(raw_labels_df, genre, track_id))
 
-
 song_list = []
 for i in tqdm(range(config.DEV_MODE_SAMPLE_NUMBER if config.IS_DEV_MODE else len(songs_paths))):
     song_list.append(get_raw_data(songs_paths[i]))
@@ -85,7 +87,8 @@ with open(config.EMOTIFY_SAMPLES_DUMP_PATH, "rb") as file:
 
 all_mel_spectrogram = []
 for time_series in tqdm(all_time_series):
-    all_mel_spectrogram.append(librosa.feature.melspectrogram(y=np.array(time_series, dtype=np.float),sr=config.SAMPLING_RATE,hop_length=config.FFT_HOP))
+    all_mel_spectrogram.append(librosa.feature.melspectrogram(
+        y=np.array(time_series, dtype=np.float), sr=config.SAMPLING_RATE, hop_length=config.FFT_HOP))
 
 # Dumping spectrograms in another file
 dump_elements(all_mel_spectrogram, config.EMOTIFY_SPECTROGRAM_DUMP_PATH)

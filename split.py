@@ -1,25 +1,30 @@
 from sklearn.model_selection import train_test_split
 import pickle as pkl
+import pandas as pd
 from pathlib import Path
 
 import config
 
-
+# Create split_data directory if it doesn’t exist
 Path(config.SPLIT_DATA_DIRECTORY_PATH).mkdir(parents=True, exist_ok=True)
 
-with open(config.EMOTIFY_SPECTROGRAM_PATH, "rb") as f:
+# Load processed data
+with open(config.EMOTIFY_SPECTROGRAM_DUMP_PATH, "rb") as f:
     all_spectro = pkl.load(f)
 
+with open(config.EMOTIFY_LABELS_DUMP_PATH, "rb") as f:
+    labels = pkl.load(f)
 
-train_df_x, test_df_x, train_df_y, test_df_y = train_test_split(
-    df.drop("fake_email", axis=1), df.fake_email, train_size=0.9,  stratify=df.fake_email)
-train_df_x, validation_df_x, train_df_y, validation_df_y = train_test_split(
-    train_df_x, train_df_y, train_size=0.83333, stratify=train_df_y)
+# Transform labels to pandas DataFrame (mainly to use idxmax)
+labels = pd.DataFrame(labels)
+labels.columns = config.EMOTIFY_EMOTIONS_ORDERED_LIST
 
-train_df = train_df_x.join(train_df_y)
-validation_df = validation_df_x.join(validation_df_y)
-test_df = test_df_x.join(test_df_y)
+# Train/test split 80/20, stratify on highest ranked emotion
+train_x, test_x, train_df_y, test_df_y = train_test_split(
+    all_spectro, labels, train_size=0.8,  stratify=labels.idxmax(axis=1))
 
-train_df.to_csv(config.TRAIN_DATA_OUTPUT_PATH, index=False)
-validation_df.to_csv(config.VALIDATION_DATA_OUTPUT_PATH, index=False)
-test_df.to_csv(config.TEST_DATA_OUTPUT_PATH, index=False)
+# Dump split data
+pkl.dump(train_x, config.TRAIN_DATA_PATH)
+train_df_y.to_pickle(config.TRAIN_LABELS_PATH, index=False)
+pkl.dump(test_x, config.TEST_DATA_PATH)
+test_df_y.to_pickle(config.TEST_LABELS_PATH, index=False)
