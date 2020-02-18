@@ -23,6 +23,20 @@ def get_raw_labels(path):
     grouped_df['track id'] = ((grouped_df['track id'] - 1) % 100) + 1
     return grouped_df
 
+def get_label_emotion_scores_for_track(raw_labels_df, genre, track_id):
+    """
+    Extract emotion scores matching song from raw labels dataframe. 
+    Songs are uniquely defined by genre and track_id.
+    Raises an exception when multiple rows are found for a unique song.
+    """
+    # Get the label row(s) that match the song (genre and id)
+    matching_label_rows = raw_labels_df.loc[(raw_labels_df["genre"] == genre) & (raw_labels_df["track id"] == track_id)]
+    # Select only emotion columns and convert the row as list 
+    matching_label_lists = matching_label_rows[config.EMOTIFY_EMOTIONS_ORDERED_LIST].values.tolist()
+    # Check that there is only one matching song in labels
+    if (len(matching_label_lists) > 1):
+        raise ValueError("matching_label_lists has more than one matching song: {}".format(matching_label_lists))
+    return matching_label_lists[0]
 
 def get_raw_data(path):
     """Convert to mono and return an array of samples"""
@@ -51,15 +65,12 @@ songs_paths = []
 for outer_path in os.listdir(config.EMOTIFY_SAMPLES_PATH):
     if os.path.isdir(os.path.join(config.EMOTIFY_SAMPLES_PATH, outer_path)):
         for inner_path in os.listdir(os.path.join(config.EMOTIFY_SAMPLES_PATH, outer_path)):
+            # samples
             songs_paths.append(os.path.join(config.EMOTIFY_SAMPLES_PATH, outer_path, inner_path))
-            # Get the label row(s) that match the song (genre and id)
-            matching_label_rows = raw_labels_df.loc[(raw_labels_df["genre"] == outer_path) & (raw_labels_df["track id"] == int(inner_path.split(".")[0]))]
-            # Select only emotion columns and convert the row as list 
-            matching_label_lists = matching_label_rows[config.EMOTIFY_EMOTIONS_ORDERED_LIST].values.tolist()
-            # Check that there is only one matching song in labels
-            if (len(matching_label_lists) > 1):
-                raise ValueError("matching_label_lists has more than one matching song: {}".format(matching_label_lists))
-            labels.append(matching_label_lists[0])
+            # labels
+            genre = outer_path
+            track_id = int(inner_path.split(".")[0])
+            labels.append(get_label_emotion_scores_for_track(raw_labels_df, genre, track_id))
 
 
 song_list = []
