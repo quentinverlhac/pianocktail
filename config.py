@@ -21,3 +21,7 @@ EMOTIFY_EMOTIONS_ORDERED_LIST = ["amazement", "solemnity", "tenderness", "nostal
 # Sampling and spectrogram variables
 SAMPLING_RATE = 44100
 FFT_HOP = 512
+
+# Training variables
+LEARNING_RATE = 0.001
+BATCH_SIZE = 1

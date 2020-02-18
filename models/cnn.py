@@ -1,5 +1,7 @@
+import tensorflow as tf
+
 from tensorflow.keras import Model
-from tensorflow.keras.layers import InputLayer, Conv2D, Flatten, Dense, AveragePooling2D
+from tensorflow.keras.layers import InputLayer, Conv2D, Flatten, Dense, AveragePooling2D, MaxPool2D
 
 class ConvModel(Model):
     def __init__(self,name="conv_basic"):
@@ -19,7 +21,7 @@ class ConvModel(Model):
 
         self.dense1 = Dense(200,activation=tf.nn.relu,name=f"{name}_dense1")
 
-        self.output = Dense(9,activation=tf.nn.softmax,name=f"{name}_output")
+        self.dense2 = Dense(9,activation=tf.nn.softmax,name=f"{name}_output")
 
     def call(self, inputs, training=False):
         net = self.input_layer(inputs)
@@ -29,7 +31,5 @@ class ConvModel(Model):
         net = self.pooling2(net)
         net = self.flatten(net)
         net = self.dense1(net)
-        return self.output(net)
-
-
-
+        net = self.dense2(net)
+        return net
