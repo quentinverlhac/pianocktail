@@ -25,3 +25,4 @@ FFT_HOP = 512
 # Training variables
 LEARNING_RATE = 0.001
 BATCH_SIZE = 1
+NB_EPOCHS = 10
