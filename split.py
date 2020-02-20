@@ -22,7 +22,7 @@ labels.columns = config.EMOTIFY_EMOTIONS_ORDERED_LIST
 
 # Train/test split 80/20, stratify on highest ranked emotion
 train_x, test_x, train_df_y, test_df_y = train_test_split(
-    all_spectro, labels, train_size=0.8,  stratify=labels.idxmax(axis=1))
+    all_spectro, labels, train_size=config.TRAIN_SIZE,  stratify=labels.idxmax(axis=1))
 
 # Dump split data
 utils.dump_elements(train_x, config.TRAIN_DATA_PATH)
