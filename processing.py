@@ -1,13 +1,14 @@
-import librosa.display
 import os
 import pickle as pkl
 
+import librosa.display
 import numpy as np
 import pandas as pd
 from pydub import AudioSegment
 from tqdm import tqdm
 
 import config
+import utils
 
 
 def get_raw_labels(path):
@@ -22,10 +23,12 @@ def get_raw_labels(path):
     df.drop(columns=["mood", "liked", "disliked", "age", "gender", "mother tongue"], inplace=True)
     # get the average score on all user answers for each song
     grouped_df = df.groupby(['genre', 'track id']).mean().reset_index()
-    # Song ids are split between genre and range between 1 and 100 in data folders, but it ranges between 1 and 400 in labels.csv
+    # Song ids are split between genre and range between 1 and 100 in data folders,
+    # but range between 1 and 400 in labels.csv
     # This line changes ids from labels.csv to match data file names
     grouped_df['track id'] = ((grouped_df['track id'] - 1) % 100) + 1
     return grouped_df
+
 
 def get_label_emotion_scores_for_track(raw_labels_df, genre, track_id):
     """
@@ -38,9 +41,10 @@ def get_label_emotion_scores_for_track(raw_labels_df, genre, track_id):
     # Select only emotion columns and convert the row as list 
     matching_label_lists = matching_label_rows[config.EMOTIFY_EMOTIONS_ORDERED_LIST].values.tolist()
     # Check that there is only one matching song in labels
-    if (len(matching_label_lists) > 1):
+    if len(matching_label_lists) > 1:
         raise ValueError("matching_label_lists has more than one matching song: {}".format(matching_label_lists))
     return matching_label_lists[0]
+
 
 def get_raw_data(path):
     """Convert to mono and return an array of samples"""
@@ -49,20 +53,6 @@ def get_raw_data(path):
     segment = left.overlay(right)
     return segment.get_array_of_samples()
 
-
-def dump_elements(elements, dump_path):
-    """
-    Dumps all elements in the list to a binary file on the dump path
-    """
-    with open(dump_path, 'wb') as f:
-        pkl.dump(elements, f)
-
-def load_dump(dump_path):
-    """
-    Load the content of the file at dump path
-    """
-    with open(config.dump_path, "rb") as file:
-        return pkl.load(file)
 
 def import_and_dump_raw_dataset():
     """
@@ -89,13 +79,14 @@ def import_and_dump_raw_dataset():
 
     all_mel_spectrogram = []
     for time_series in tqdm(song_list):
-        all_mel_spectrogram.append(librosa.feature.melspectrogram(y=np.array(time_series, dtype=np.float),sr=config.SAMPLING_RATE,hop_length=config.FFT_HOP))
+        all_mel_spectrogram.append(librosa.feature.melspectrogram(
+            y=np.array(time_series, dtype=np.float),sr=config.SAMPLING_RATE,hop_length=config.FFT_HOP))
     
     # Dumping songs from the emotify dataset in the emotify dump file
-    dump_elements(song_list, config.EMOTIFY_SAMPLES_DUMP_PATH)
-    dump_elements(labels[:len(song_list)], config.EMOTIFY_LABELS_DUMP_PATH)
+    utils.dump_elements(song_list, config.EMOTIFY_SAMPLES_DUMP_PATH)
+    utils.dump_elements(labels[:len(song_list)], config.EMOTIFY_LABELS_DUMP_PATH)
     # Dumping song spectrograms
-    dump_elements(all_mel_spectrogram, config.EMOTIFY_SPECTROGRAM_DUMP_PATH)   
+    utils.dump_elements(all_mel_spectrogram, config.EMOTIFY_SPECTROGRAM_DUMP_PATH)   
 
 if __name__ == '__main__':
     import_and_dump_raw_dataset()
