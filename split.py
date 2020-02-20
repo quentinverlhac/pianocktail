@@ -13,12 +13,7 @@ Path(config.SPLIT_DATA_DIRECTORY_PATH).mkdir(parents=True, exist_ok=True)
 with open(config.EMOTIFY_SPECTROGRAM_DUMP_PATH, "rb") as f:
     all_spectro = pkl.load(f)
 
-with open(config.EMOTIFY_LABELS_DUMP_PATH, "rb") as f:
-    labels = pkl.load(f)
-
-# Transform labels to pandas DataFrame (mainly to use idxmax)
-labels = pd.DataFrame(labels)
-labels.columns = config.EMOTIFY_EMOTIONS_ORDERED_LIST
+labels = utils.load_labels(config.EMOTIFY_LABELS_DUMP_PATH)
 
 # Train/test split 80/20, stratify on highest ranked emotion
 train_x, test_x, train_df_y, test_df_y = train_test_split(

@@ -1,5 +1,6 @@
 import numpy as np
 import config
+import pandas as pd
 import pickle as pkl
 
 
@@ -21,3 +22,16 @@ def dump_elements(elements, dump_path):
     """
     with open(dump_path, 'wb') as f:
         pkl.dump(elements, f)
+
+
+def load_labels(path):
+    """
+    Load a pickle file containing list of labels and return as pandas DataFrame
+    """
+    with open(path, "rb") as f:
+        labels = pkl.load(f)
+
+    # Transform labels to pandas DataFrame
+    labels = pd.DataFrame(labels)
+    labels.columns = config.EMOTIFY_EMOTIONS_ORDERED_LIST
+    return labels
