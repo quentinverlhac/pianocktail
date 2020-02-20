@@ -80,7 +80,7 @@ def import_and_dump_raw_dataset():
     all_mel_spectrogram = []
     for time_series in tqdm(song_list):
         all_mel_spectrogram.append(librosa.feature.melspectrogram(
-            y=np.array(time_series, dtype=np.float),sr=config.SAMPLING_RATE,hop_length=config.FFT_HOP))
+            y=np.array(time_series, dtype=np.float), sr=config.SAMPLING_RATE, hop_length=config.FFT_HOP))
     
     # Dumping songs from the emotify dataset in the emotify dump file
     utils.dump_elements(song_list, config.EMOTIFY_SAMPLES_DUMP_PATH)

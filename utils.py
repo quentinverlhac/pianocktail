@@ -27,7 +27,7 @@ def load_dump(dump_path):
     """
     Load the content of the file at dump path
     """
-    with open(config.dump_path, "rb") as file:
+    with open(dump_path, "rb") as file:
         return pkl.load(file)
 
 def load_labels(path):

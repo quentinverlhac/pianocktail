@@ -10,8 +10,7 @@ import utils
 Path(config.SPLIT_DATA_DIRECTORY_PATH).mkdir(parents=True, exist_ok=True)
 
 # Load processed data
-with open(config.EMOTIFY_SPECTROGRAM_DUMP_PATH, "rb") as f:
-    all_spectro = pkl.load(f)
+all_spectro = utils.load_dump(config.EMOTIFY_SPECTROGRAM_DUMP_PATH)
 
 labels = utils.load_labels(config.EMOTIFY_LABELS_DUMP_PATH)
 
