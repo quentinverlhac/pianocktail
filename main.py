@@ -2,17 +2,15 @@ import tensorflow as tf
 import pickle as pkl
 import config
 import numpy as np
-from utils import draw_subspectrogram
+from utils import draw_subspectrogram, load_dump
 
 def main() :
 
     # import data
-    with open(config.EMOTIFY_SPECTROGRAM_DUMP_PATH,"rb") as f:
-        spectrograms = pkl.load(f)
+    spectrograms = load_dump(config.EMOTIFY_SPECTROGRAM_DUMP_PATH)
 
     # import labels
-    with open(config.EMOTIFY_LABELS_DUMP_PATH,"rb") as f:
-        train_labels = pkl.load(f)
+    train_labels = load_dump(config.EMOTIFY_LABELS_DUMP_PATH)
 
     # generate dataset
     def generate_subspectrogram():
