@@ -6,15 +6,15 @@ from utils import draw_subspectrogram, load_dump, save_model, setup_checkpoints
 
 def main():
     # import data
-    spectrograms = load_dump(config.EMOTIFY_SPECTROGRAM_DUMP_PATH)
+    train_spectrograms = load_dump(config.TRAIN_DATA_PATH)
 
     # import labels
-    train_labels = load_dump(config.EMOTIFY_LABELS_DUMP_PATH)
+    train_labels = load_dump(config.TRAIN_LABELS_PATH)
 
     # generate dataset
     def generate_subspectrogram():
         for i in range(len(train_labels)):
-            sub_spectro = draw_subspectrogram(spectrograms[i], 5)
+            sub_spectro = draw_subspectrogram(train_spectrograms[i], 5)
             tensor_spectro = tf.convert_to_tensor(sub_spectro)
             tensor_spectro = tf.reshape(tensor_spectro, (128, 430, 1))
             tensor_label = tf.convert_to_tensor(train_labels[i])
