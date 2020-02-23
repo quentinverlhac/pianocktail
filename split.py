@@ -1,6 +1,4 @@
 from sklearn.model_selection import train_test_split
-import pickle as pkl
-import pandas as pd
 
 import config
 import utils
