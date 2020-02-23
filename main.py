@@ -2,7 +2,7 @@ import tensorflow as tf
 import pickle as pkl
 import config
 import numpy as np
-from utils import draw_subspectrogram, load_dump, save_model
+from utils import draw_subspectrogram, load_dump, save_model, setup_checkpoints
 
 def main() :
 
@@ -35,6 +35,8 @@ def main() :
     train_loss = tf.keras.metrics.Mean(name='train_loss')
     train_accuracy = tf.keras.metrics.Accuracy(name='train_accuracy')
 
+    checkpoint, checkpoint_manager = setup_checkpoints(model, optimizer)
+
     #declaring forward pass and gradient descent
     @tf.function
     def forward_pass(inputs,labels):
@@ -58,8 +60,17 @@ def main() :
         train_loss.update_state(loss)
         train_accuracy.update_state(predictions, labels)
     
+    # ============================ train the model =============================
+    # restore checkpoint
+    if config.RESTORE_CHECKPOINT:
+        checkpoint.restore(checkpoint_manager.latest_checkpoint)
+        print('Restored checkpoint. Model {} - epoch {} - iteration {}'.format(checkpoint.model.name, checkpoint.epoch.value(), checkpoint.iteration.value()))
+
     # for test we iterate over samples one by one
     for epoch in range(config.NB_EPOCHS) :
+
+        print('============================ epoch {} ============================='.format(epoch))
+        checkpoint.epoch.assign(epoch)
 
         for iteration, (spectro, label) in enumerate(train_dataset) :
             train_step(spectro,label)
@@ -70,12 +81,13 @@ def main() :
                 print(template.format(iteration, train_loss.result(), train_accuracy.result()))
                 train_loss.reset_states()
                 train_accuracy.reset_states()
+            
+            # manage checkpoint
+            checkpoint.iteration.assign(iteration)
+            if iteration % config.SAVE_PERIOD == 0:
+                checkpoint_manager.save()
 
     save_model(model, epoch)
 
 if __name__ == "__main__" :
     main()
-
-
-
-

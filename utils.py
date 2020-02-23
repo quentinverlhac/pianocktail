@@ -3,6 +3,7 @@ import numpy as np
 import config
 import pandas as pd
 import pickle as pkl
+import tensorflow as tf
 from pathlib import Path
 
 def create_directory_if_doesnt_exist(path):
@@ -49,3 +50,18 @@ def save_model(model, epoch):
     create_directory_if_doesnt_exist(config.SAVED_MODELS_PATH)
     model.save_weights(os.path.join(
         config.SAVED_MODELS_PATH, '{}_{:06d}.h5'.format(model.name, epoch)))
+
+def setup_checkpoints(model, optimizer):
+    create_directory_if_doesnt_exist(config.CHECKPOINTS_PATH)
+    checkpoint = tf.train.Checkpoint(
+        epoch=tf.Variable(0),
+        iteration=tf.Variable(0),
+        model=model,
+        optimizer=optimizer
+    )
+    checkpoint_manager = tf.train.CheckpointManager(
+        checkpoint,
+        config.CHECKPOINTS_PATH, 
+        max_to_keep=1
+    )
+    return checkpoint, checkpoint_manager

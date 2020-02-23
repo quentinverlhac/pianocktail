@@ -136,6 +136,7 @@ data/
 
 # saved models
 saved_models/
+checkpoints/
 
 # DS_Store
 .DS_Store
