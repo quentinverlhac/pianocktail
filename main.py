@@ -16,7 +16,8 @@ def main():
         for i in range(len(train_labels)):
             sub_spectro = draw_subspectrogram(train_spectrograms[i])
             tensor_spectro = tf.convert_to_tensor(sub_spectro)
-            tensor_spectro = tf.reshape(tensor_spectro, (config.MEL_POINTS, config.SUBSPECTROGRAM_POINTS, 1))
+            tensor_spectro = tf.transpose(tensor_spectro)
+            tensor_spectro = tf.reshape(tensor_spectro, (config.SUBSPECTROGRAM_POINTS, config.MEL_POINTS, 1))
             tensor_label = tf.convert_to_tensor(train_labels[i])
             yield tensor_spectro, tensor_label
 
@@ -26,7 +27,7 @@ def main():
     # building the model
     from models.cnn import ConvModel as Model
     model = Model()
-    model.build(input_shape=(config.BATCH_SIZE, config.MEL_POINTS, config.SUBSPECTROGRAM_POINTS, 1))
+    model.build(input_shape=(config.BATCH_SIZE, config.SUBSPECTROGRAM_POINTS, config.MEL_POINTS, 1))
     model.summary()
     optimizer = tf.optimizers.Adam(config.LEARNING_RATE)
 

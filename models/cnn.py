@@ -9,7 +9,7 @@ class ConvModel(Model):
     def __init__(self,name="conv_basic"):
         super(ConvModel,self).__init__()
 
-        self.input_layer = InputLayer((config.MEL_POINTS,config.SUBSPECTROGRAM_POINTS,1), name=f"{name}_input")
+        self.input_layer = InputLayer((config.SUBSPECTROGRAM_POINTS,config.MEL_POINTS,1), name=f"{name}_input")
 
         self.conv1 = Conv2D(filters=6,kernel_size=(5,7),activation=tf.nn.relu,name=f"{name}_conv1")
 
