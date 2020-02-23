@@ -1,8 +1,12 @@
+import os
 import numpy as np
 import config
 import pandas as pd
 import pickle as pkl
+from pathlib import Path
 
+def create_directory_if_doesnt_exist(path):
+    Path(path).mkdir(parents=True, exist_ok=True)
 
 def draw_subspectrogram(spectrogram,sub_len,seed=42) :
     """
@@ -40,3 +44,8 @@ def load_labels(path):
     labels = pd.DataFrame(labels)
     labels.columns = config.EMOTIFY_EMOTIONS_ORDERED_LIST
     return labels
+
+def save_model(model, epoch):
+    create_directory_if_doesnt_exist(config.SAVED_MODELS_PATH)
+    model.save_weights(os.path.join(
+        config.SAVED_MODELS_PATH, '{}_{:06d}.h5'.format(model.name, epoch)))

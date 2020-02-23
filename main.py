@@ -2,7 +2,7 @@ import tensorflow as tf
 import pickle as pkl
 import config
 import numpy as np
-from utils import draw_subspectrogram, load_dump
+from utils import draw_subspectrogram, load_dump, save_model
 
 def main() :
 
@@ -71,7 +71,7 @@ def main() :
                 train_loss.reset_states()
                 train_accuracy.reset_states()
 
-        
+    save_model(model, epoch)
 
 if __name__ == "__main__" :
     main()
