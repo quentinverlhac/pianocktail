@@ -30,3 +30,8 @@ FFT_HOP = 512
 
 # Train size (0-1)
 TRAIN_SIZE = 0.8
+
+# Training variables
+LEARNING_RATE = 0.001
+BATCH_SIZE = 1
+NB_EPOCHS = 10
