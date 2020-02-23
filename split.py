@@ -1,13 +1,12 @@
 from sklearn.model_selection import train_test_split
 import pickle as pkl
 import pandas as pd
-from pathlib import Path
 
 import config
 import utils
 
 # Create split_data directory if it doesn’t exist
-Path(config.SPLIT_DATA_DIRECTORY_PATH).mkdir(parents=True, exist_ok=True)
+utils.create_directory_if_doesnt_exist(config.SPLIT_DATA_DIRECTORY_PATH)
 
 # Load processed data
 all_spectro = utils.load_dump(config.EMOTIFY_SPECTROGRAM_DUMP_PATH)

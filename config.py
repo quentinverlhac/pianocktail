@@ -5,20 +5,26 @@ import os
 IS_DEV_MODE = False
 DEV_MODE_SAMPLE_NUMBER = 10
 
-# Data paths
+# Paths
 DIRECTORY_PATH = os.getcwd()
+# Data paths
 DATA_DIRECTORY_PATH = os.path.join(DIRECTORY_PATH, "data")
+# Emotify
 EMOTIFY_DATA_PATH = os.path.join(DATA_DIRECTORY_PATH, "emotifymusic")
 EMOTIFY_SAMPLES_PATH = os.path.join(EMOTIFY_DATA_PATH, "samples")
 EMOTIFY_LABELS_CSV_PATH = os.path.join(EMOTIFY_DATA_PATH, "labels.csv")
 EMOTIFY_SAMPLES_DUMP_PATH = os.path.join(EMOTIFY_DATA_PATH, "data.pkl")
 EMOTIFY_SPECTROGRAM_DUMP_PATH = os.path.join(EMOTIFY_DATA_PATH, "spectro.pkl")
 EMOTIFY_LABELS_DUMP_PATH = os.path.join(EMOTIFY_DATA_PATH, "labels.pkl")
+# Split data
 SPLIT_DATA_DIRECTORY_PATH = os.path.join(DATA_DIRECTORY_PATH, "split_data")
 TRAIN_DATA_PATH = os.path.join(SPLIT_DATA_DIRECTORY_PATH, "train.pkl")
 TRAIN_LABELS_PATH = os.path.join(SPLIT_DATA_DIRECTORY_PATH, "train_labels.pkl")
 TEST_DATA_PATH = os.path.join(SPLIT_DATA_DIRECTORY_PATH, "test.pkl")
 TEST_LABELS_PATH = os.path.join(SPLIT_DATA_DIRECTORY_PATH, "test_labels.pkl")
+# Saved models
+CHECKPOINTS_PATH = os.path.join(DIRECTORY_PATH, 'checkpoints')
+SAVED_MODELS_PATH = os.path.join(DIRECTORY_PATH, 'saved_models')
 
 # The list of ordered emotions.
 EMOTIFY_EMOTIONS_ORDERED_LIST = ["amazement", "solemnity", "tenderness", "nostalgia", "calmness", "power",
@@ -35,3 +41,7 @@ TRAIN_SIZE = 0.8
 LEARNING_RATE = 0.001
 BATCH_SIZE = 1
 NB_EPOCHS = 10
+
+# Manage checkpoints
+RESTORE_CHECKPOINT = False
+SAVE_PERIOD = 100
