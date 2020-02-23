@@ -26,6 +26,7 @@ def main():
 
     # building the model
     from models.cnn import ConvModel as Model
+    # from models.pianocktail_gru import PianocktailGRU as Model
     model = Model()
     model.build(input_shape=(config.BATCH_SIZE, config.SUBSPECTROGRAM_POINTS, config.MEL_POINTS, 1))
     model.summary()
