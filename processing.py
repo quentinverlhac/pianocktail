@@ -1,5 +1,4 @@
 import os
-import pickle as pkl
 
 import librosa.display
 import numpy as np
@@ -12,10 +11,10 @@ import utils
 
 
 def get_raw_labels(path):
-    '''
+    """
     Load labels and process them.
     9 columns between 0 and 1 represent the percentage of respondants who tagged the song with the corresponding emotion.
-    '''
+    """
     df = pd.read_csv(path)
     # remove leading spaces
     df.rename(columns=lambda s: s.strip(), inplace=True)
@@ -87,6 +86,7 @@ def import_and_dump_raw_dataset():
     utils.dump_elements(labels[:len(song_list)], config.EMOTIFY_LABELS_DUMP_PATH)
     # Dumping song spectrograms
     utils.dump_elements(all_mel_spectrogram, config.EMOTIFY_SPECTROGRAM_DUMP_PATH)   
+
 
 if __name__ == '__main__':
     import_and_dump_raw_dataset()
