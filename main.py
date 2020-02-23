@@ -31,6 +31,10 @@ def main() :
     model.summary()
     optimizer = tf.optimizers.Adam(config.LEARNING_RATE)
 
+    # define metrics
+    train_loss = tf.keras.metrics.Mean(name='train_loss')
+    train_accuracy = tf.keras.metrics.Accuracy(name='train_accuracy')
+
     #declaring forward pass and gradient descent
     @tf.function
     def forward_pass(inputs,labels):
@@ -49,12 +53,23 @@ def main() :
             predictions, loss = forward_pass(inputs,labels)
         gradients = tape.gradient(loss,model.trainable_variables)
         optimizer.apply_gradients(zip(gradients,model.trainable_variables))
+
+        # compute metrics
+        train_loss.update_state(loss)
+        train_accuracy.update_state(predictions, labels)
     
     # for test we iterate over samples one by one
     for epoch in range(config.NB_EPOCHS) :
 
         for iteration, (spectro, label) in enumerate(train_dataset) :
             train_step(spectro,label)
+
+            # display metrics
+            if iteration % 10 == 0:
+                template = 'iteration {} - loss: {:4.2f} - accuracy: {:5.2%}'
+                print(template.format(iteration, train_loss.result(), train_accuracy.result()))
+                train_loss.reset_states()
+                train_accuracy.reset_states()
 
         
 
