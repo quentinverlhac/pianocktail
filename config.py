@@ -34,6 +34,10 @@ EMOTIFY_EMOTIONS_ORDERED_LIST = ["amazement", "solemnity", "tenderness", "nostal
 # Sampling and spectrogram variables
 SAMPLING_RATE = 44100
 FFT_HOP = 512
+FFT_RATE = SAMPLING_RATE / FFT_HOP
+SUBSPECTROGRAM_DURATION_S = 5
+SUBSPECTROGRAM_POINTS = int(SUBSPECTROGRAM_DURATION_S * FFT_RATE)
+
 
 # Train size (0-1)
 TRAIN_SIZE = 0.8
