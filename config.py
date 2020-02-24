@@ -30,6 +30,7 @@ SAVED_MODELS_PATH = os.path.join(DIRECTORY_PATH, 'saved_models')
 # The list of ordered emotions.
 EMOTIFY_EMOTIONS_ORDERED_LIST = ["amazement", "solemnity", "tenderness", "nostalgia", "calmness", "power",
                                  "joyful_activation", "tension", "sadness"]
+NUMBER_OF_EMOTIONS = len(EMOTIFY_EMOTIONS_ORDERED_LIST)
 
 # Sampling and spectrogram variables
 SAMPLING_RATE = 44100

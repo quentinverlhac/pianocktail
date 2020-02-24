@@ -23,7 +23,7 @@ class ConvModel(Model):
 
         self.dense1 = Dense(200,activation=tf.nn.relu,name=f"{name}_dense1")
 
-        self.dense2 = Dense(9,activation=tf.nn.sigmoid,name=f"{name}_output")
+        self.dense2 = Dense(config.NUMBER_OF_EMOTIONS,activation=tf.nn.sigmoid,name=f"{name}_output")
 
     def call(self, inputs, training=False):
         net = self.input_layer(inputs)
