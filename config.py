@@ -59,7 +59,7 @@ TRAIN_SIZE = 0.8
 # Training variables
 LEARNING_RATE = 0.01
 BATCH_SIZE = 1
-NB_EPOCHS = 1000
+NB_EPOCHS = 10000
 
 # Manage checkpoints
 RESTORE_CHECKPOINT = False
