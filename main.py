@@ -2,6 +2,8 @@ import tensorflow as tf
 
 import config
 from utils import draw_subspectrogram, load_dump, save_model, setup_checkpoints
+from models.basic_cnn import BasicCNN
+from models.pianocktail_gru import PianocktailGRU
 
 
 def main():
@@ -24,8 +26,10 @@ def main():
     train_dataset = train_dataset.batch(config.BATCH_SIZE)
 
     # building the model
-    from models.cnn import ConvModel as Model
-    # from models.pianocktail_gru import PianocktailGRU as Model
+    if config.MODEL == config.ModelEnum.PIANOCKTAIL_GRU:
+        Model = PianocktailGRU
+    elif config.MODEL == config.ModelEnum.BASIC_CNN:
+        Model = BasicCNN
     model = Model()
     model.build(input_shape=(config.BATCH_SIZE, config.SUBSPECTROGRAM_POINTS, config.MEL_BINS))
     model.summary()

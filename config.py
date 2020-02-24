@@ -1,10 +1,18 @@
 import os
+from enum import Enum
 
 # Config variables
 
 # Set this to test code on limited sample number. Useful to test faster.
 IS_DEV_MODE = False
 DEV_MODE_SAMPLE_NUMBER = 10
+
+# Model
+class ModelEnum(Enum):
+    BASIC_CNN = "BASIC_CNN"
+    PIANOCKTAIL_GRU = "PIANOCKTAIL_GRU"
+
+MODEL = ModelEnum.BASIC_CNN
 
 # Paths
 DIRECTORY_PATH = os.getcwd()

@@ -5,9 +5,10 @@ from tensorflow.keras.layers import InputLayer, Reshape, Conv2D, Flatten, Dense,
 
 import config 
 
-class ConvModel(Model):
-    def __init__(self, name="conv_basic", subspectrogram_points = config.SUBSPECTROGRAM_POINTS, mel_bins = config.MEL_BINS, number_of_emotions = config.NUMBER_OF_EMOTIONS):
-        super(ConvModel,self).__init__()
+
+class BasicCNN(Model):
+    def __init__(self, name="basic_cnn", subspectrogram_points = config.SUBSPECTROGRAM_POINTS, mel_bins = config.MEL_BINS, number_of_emotions = config.NUMBER_OF_EMOTIONS):
+        super(BasicCNN,self).__init__()
 
         self.input_layer = InputLayer((subspectrogram_points, mel_bins), name=f"{name}_input")
 
