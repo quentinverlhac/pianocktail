@@ -46,9 +46,9 @@ def main():
     def forward_pass(inputs, labels):
         print("tracing forward graph")
         predictions = model.call(inputs)
-        loss = tf.losses.categorical_crossentropy(
-            y_true=labels,
-            y_pred=predictions
+        loss = tf.nn.sigmoid_cross_entropy_with_logits(
+            labels=labels,
+            logits=predictions
         )
         return predictions, loss
 
