@@ -52,8 +52,9 @@ def load_labels(path):
 
 def save_model(model, epoch):
     create_directory_if_doesnt_exist(config.SAVED_MODELS_PATH)
+    dev_mode_string = "_dev" if config.IS_DEV_MODE else ""
     model.save_weights(os.path.join(
-        config.SAVED_MODELS_PATH, f"{model.name}_{epoch:06d}.h5"))
+        config.SAVED_MODELS_PATH, f"{model.name}_{epoch:06d}{dev_mode_string}.h5"))
 
 
 def setup_checkpoints(model, optimizer):

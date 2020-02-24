@@ -13,7 +13,7 @@ class PianocktailGRU(Model):
 
         self.reshape = Reshape((config.SUBSPECTROGRAM_POINTS,config.MEL_POINTS), name=f"{name}_reshape") 
         
-        self.gru = GRU(config.SUBSPECTROGRAM_POINTS ,name=f"{name}_gru")
+        self.gru = GRU(config.SUBSPECTROGRAM_POINTS, name=f"{name}_gru")
 
         self.dense = Dense(config.NUMBER_OF_EMOTIONS, activation=tf.nn.sigmoid, name=f"{name}_output")
 

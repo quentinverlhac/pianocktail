@@ -82,10 +82,9 @@ def import_and_dump_raw_dataset():
             y=np.array(time_series, dtype=np.float), sr=config.SAMPLING_RATE, hop_length=config.FFT_HOP))
     
     # Dumping songs from the emotify dataset in the emotify dump file
-    utils.dump_elements(song_list, config.EMOTIFY_SAMPLES_DUMP_PATH)
-    utils.dump_elements(labels[:len(song_list)], config.EMOTIFY_LABELS_DUMP_PATH)
+    utils.dump_elements(labels[:len(song_list)], config.DEV_LABELS_PATH if config.IS_DEV_MODE else config.EMOTIFY_LABELS_DUMP_PATH)
     # Dumping song spectrograms
-    utils.dump_elements(all_mel_spectrogram, config.EMOTIFY_SPECTROGRAM_DUMP_PATH)   
+    utils.dump_elements(all_mel_spectrogram, config.DEV_DATA_PATH if config.IS_DEV_MODE else config.EMOTIFY_SPECTROGRAM_DUMP_PATH)   
 
 
 if __name__ == '__main__':

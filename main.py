@@ -6,10 +6,10 @@ from utils import draw_subspectrogram, load_dump, save_model, setup_checkpoints
 
 def main():
     # import data
-    train_spectrograms = load_dump(config.TRAIN_DATA_PATH)
+    train_spectrograms = load_dump(config.DEV_DATA_PATH if config.IS_DEV_MODE else config.TRAIN_DATA_PATH)
 
     # import labels
-    train_labels = load_dump(config.TRAIN_LABELS_PATH)
+    train_labels = load_dump(config.DEV_LABELS_PATH if config.IS_DEV_MODE else config.TRAIN_LABELS_PATH)
 
     # generate dataset
     def generate_subspectrogram():
