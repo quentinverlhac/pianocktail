@@ -7,6 +7,13 @@ Inspired by the work of Jan Jakubik, Halina Kwasnicka, *Music Emotion Analysis U
 
 Download datasets and add them in the `data` folder, matching paths defined in `config.py`.
 
+## Trainning models
+
+- Choose the model in `config.py`
+- Run `python processing.py` to process the data
+- Run `python split.py` to generate train/test split
+- Run `python main.py` to train the selected model on the dataset
+
 ## Requirements
 
 Make sure you have `ffmpeg` installed locally.
