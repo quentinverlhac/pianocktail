@@ -64,6 +64,8 @@ def main():
         train_loss.update_state(loss)
         train_accuracy.update_state(predictions, labels)
 
+        return predictions, labels
+
     # ============================ train the model =============================
     # restore checkpoint
     if config.RESTORE_CHECKPOINT:
@@ -77,12 +79,18 @@ def main():
         checkpoint.epoch.assign(epoch)
 
         for iteration, (spectro, label) in enumerate(train_dataset):
-            train_step(spectro, label)
+            predictions, labels = train_step(spectro, label)
 
             # display metrics
             if iteration % 10 == 0:
                 template = 'iteration {} - loss: {:4.2f} - accuracy: {:5.2%}'
                 print(template.format(iteration, train_loss.result(), train_accuracy.result()))
+                if config.IS_VERBOSE:
+                    emotion_template = 'Emotion category: {:>17} - prediction: {:10f} - label: {:10f} - difference: {:10f}'
+                    for i in range(len(config.EMOTIFY_EMOTIONS_ORDERED_LIST)):
+                        prediction = (predictions.numpy())[0][i]
+                        label = (labels.numpy())[0][i]
+                        print(emotion_template.format(config.EMOTIFY_EMOTIONS_ORDERED_LIST[i], prediction, label, prediction - label))
                 train_loss.reset_states()
                 train_accuracy.reset_states()
 
