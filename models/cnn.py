@@ -6,10 +6,10 @@ from tensorflow.keras.layers import InputLayer, Conv2D, Flatten, Dense, AverageP
 import config 
 
 class ConvModel(Model):
-    def __init__(self,name="conv_basic"):
+    def __init__(self, name="conv_basic", subspectrogram_points = config.SUBSPECTROGRAM_POINTS, mel_bins = config.MEL_BINS, number_of_emotions = config.NUMBER_OF_EMOTIONS):
         super(ConvModel,self).__init__()
 
-        self.input_layer = InputLayer((config.SUBSPECTROGRAM_POINTS,config.MEL_POINTS,1), name=f"{name}_input")
+        self.input_layer = InputLayer((subspectrogram_points, mel_bins,1), name=f"{name}_input")
 
         self.conv1 = Conv2D(filters=6,kernel_size=(5,7),activation=tf.nn.relu,name=f"{name}_conv1")
 
@@ -23,7 +23,7 @@ class ConvModel(Model):
 
         self.dense1 = Dense(200,activation=tf.nn.relu,name=f"{name}_dense1")
 
-        self.dense2 = Dense(config.NUMBER_OF_EMOTIONS,activation=tf.nn.sigmoid,name=f"{name}_output")
+        self.dense2 = Dense(number_of_emotions,activation=tf.nn.sigmoid,name=f"{name}_output")
 
     def call(self, inputs, training=False):
         net = self.input_layer(inputs)
