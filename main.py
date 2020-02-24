@@ -82,7 +82,7 @@ def main():
             predictions, labels = train_step(spectro, label)
 
             # display metrics
-            if iteration % 10 == 0:
+            if iteration % config.ITERATION_PRINT_PERIOD == 0:
                 template = 'iteration {} - loss: {:4.2f} - accuracy: {:5.2%}'
                 print(template.format(iteration, train_loss.result(), train_accuracy.result()))
                 if config.IS_VERBOSE:

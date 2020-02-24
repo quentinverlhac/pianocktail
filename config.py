@@ -7,13 +7,14 @@ from enum import Enum
 IS_DEV_MODE = False
 DEV_MODE_SAMPLE_NUMBER = 20
 IS_VERBOSE = False
+ITERATION_PRINT_PERIOD = 100
 
 # Model
 class ModelEnum(Enum):
     BASIC_CNN = "BASIC_CNN"
     PIANOCKTAIL_GRU = "PIANOCKTAIL_GRU"
 
-MODEL = ModelEnum.BASIC_CNN
+MODEL = ModelEnum.PIANOCKTAIL_GRU
 
 # Paths
 DIRECTORY_PATH = os.getcwd()
@@ -58,7 +59,7 @@ TRAIN_SIZE = 0.8
 # Training variables
 LEARNING_RATE = 0.01
 BATCH_SIZE = 1
-NB_EPOCHS = 10
+NB_EPOCHS = 1000
 
 # Manage checkpoints
 RESTORE_CHECKPOINT = False
