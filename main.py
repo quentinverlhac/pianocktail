@@ -17,7 +17,6 @@ def main():
             sub_spectro = draw_subspectrogram(train_spectrograms[i], duration_s, fft_rate)
             tensor_spectro = tf.convert_to_tensor(sub_spectro)
             tensor_spectro = tf.transpose(tensor_spectro)
-            tensor_spectro = tf.reshape(tensor_spectro, (int(duration_s * fft_rate), mel_bins, 1))
             tensor_label = tf.convert_to_tensor(train_labels[i])
             yield tensor_spectro, tensor_label
 
@@ -28,7 +27,7 @@ def main():
     from models.cnn import ConvModel as Model
     # from models.pianocktail_gru import PianocktailGRU as Model
     model = Model()
-    model.build(input_shape=(config.BATCH_SIZE, config.SUBSPECTROGRAM_POINTS, config.MEL_BINS, 1))
+    model.build(input_shape=(config.BATCH_SIZE, config.SUBSPECTROGRAM_POINTS, config.MEL_BINS))
     model.summary()
     optimizer = tf.optimizers.Adam(config.LEARNING_RATE)
 
