@@ -37,7 +37,7 @@ def main():
 
     # define metrics
     train_loss = tf.keras.metrics.Mean(name='train_loss')
-    train_accuracy = tf.keras.metrics.Accuracy(name='train_accuracy')
+    train_accuracy = tf.keras.metrics.CategoricalAccuracy(name='train_accuracy')
 
     checkpoint, checkpoint_manager = setup_checkpoints(model, optimizer)
 
