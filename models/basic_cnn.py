@@ -1,13 +1,18 @@
 import tensorflow as tf
 
 from tensorflow.keras import Model
-from tensorflow.keras.layers import InputLayer, Conv2D, Flatten, Dense, AveragePooling2D, MaxPool2D
+from tensorflow.keras.layers import InputLayer, Reshape, Conv2D, Flatten, Dense, AveragePooling2D, MaxPool2D
 
-class ConvModel(Model):
-    def __init__(self,name="conv_basic"):
-        super(ConvModel,self).__init__()
+import config 
 
-        self.input_layer = InputLayer((128,430,1), name=f"{name}_input")
+
+class BasicCNN(Model):
+    def __init__(self, name="basic_cnn", subspectrogram_points = config.SUBSPECTROGRAM_POINTS, mel_bins = config.MEL_BINS, number_of_emotions = config.NUMBER_OF_EMOTIONS):
+        super(BasicCNN,self).__init__()
+
+        self.input_layer = InputLayer((subspectrogram_points, mel_bins), name=f"{name}_input")
+
+        self.reshape = Reshape((subspectrogram_points, mel_bins, 1), name=f"{name}_reshape") 
 
         self.conv1 = Conv2D(filters=6,kernel_size=(5,7),activation=tf.nn.relu,name=f"{name}_conv1")
 
@@ -21,10 +26,11 @@ class ConvModel(Model):
 
         self.dense1 = Dense(200,activation=tf.nn.relu,name=f"{name}_dense1")
 
-        self.dense2 = Dense(9,activation=tf.nn.softmax,name=f"{name}_output")
+        self.dense2 = Dense(number_of_emotions,activation=tf.nn.sigmoid,name=f"{name}_output")
 
     def call(self, inputs, training=False):
         net = self.input_layer(inputs)
+        net = self.reshape(net)
         net = self.conv1(net)
         net = self.pooling1(net)
         net = self.conv2(net)

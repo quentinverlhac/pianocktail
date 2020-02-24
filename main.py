@@ -2,21 +2,23 @@ import tensorflow as tf
 
 import config
 from utils import draw_subspectrogram, load_dump, save_model, setup_checkpoints
+from models.basic_cnn import BasicCNN
+from models.pianocktail_gru import PianocktailGRU
 
 
 def main():
     # import data
-    train_spectrograms = load_dump(config.TRAIN_DATA_PATH)
+    train_spectrograms = load_dump(config.DEV_DATA_PATH if config.IS_DEV_MODE else config.TRAIN_DATA_PATH)
 
     # import labels
-    train_labels = load_dump(config.TRAIN_LABELS_PATH)
+    train_labels = load_dump(config.DEV_LABELS_PATH if config.IS_DEV_MODE else config.TRAIN_LABELS_PATH)
 
     # generate dataset
-    def generate_subspectrogram():
+    def generate_subspectrogram(duration_s = config.SUBSPECTROGRAM_DURATION_S, fft_rate = config.FFT_RATE, mel_bins = config.MEL_BINS):
         for i in range(len(train_labels)):
-            sub_spectro = draw_subspectrogram(train_spectrograms[i], 5)
+            sub_spectro = draw_subspectrogram(train_spectrograms[i], duration_s, fft_rate)
             tensor_spectro = tf.convert_to_tensor(sub_spectro)
-            tensor_spectro = tf.reshape(tensor_spectro, (128, 430, 1))
+            tensor_spectro = tf.transpose(tensor_spectro)
             tensor_label = tf.convert_to_tensor(train_labels[i])
             yield tensor_spectro, tensor_label
 
@@ -24,9 +26,12 @@ def main():
     train_dataset = train_dataset.batch(config.BATCH_SIZE)
 
     # building the model
-    from models.cnn import ConvModel as Model
+    if config.MODEL == config.ModelEnum.PIANOCKTAIL_GRU:
+        Model = PianocktailGRU
+    elif config.MODEL == config.ModelEnum.BASIC_CNN:
+        Model = BasicCNN
     model = Model()
-    model.build(input_shape=(config.BATCH_SIZE, 128, 430, 1))
+    model.build(input_shape=(config.BATCH_SIZE, config.SUBSPECTROGRAM_POINTS, config.MEL_BINS))
     model.summary()
     optimizer = tf.optimizers.Adam(config.LEARNING_RATE)
 

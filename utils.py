@@ -13,14 +13,12 @@ def create_directory_if_doesnt_exist(path):
     Path(path).mkdir(parents=True, exist_ok=True)
 
 
-def draw_subspectrogram(spectrogram, sub_len):
+def draw_subspectrogram(spectrogram, duration_s, fft_rate):
     """
     Draw a random subspectrogram of given time length from the given spectrogram
     """
-    fft_rate = config.SAMPLING_RATE / config.FFT_HOP
-    n_points = int(sub_len * fft_rate)
-    offset = int(np.random.random() * (spectrogram.shape[1] - sub_len * fft_rate))
-    return spectrogram[:, offset:offset + n_points]
+    offset = int(np.random.random() * (spectrogram.shape[1] - duration_s * fft_rate))
+    return spectrogram[:, offset:offset + int(duration_s * fft_rate)]
 
 
 def dump_elements(elements, dump_path):
@@ -54,8 +52,9 @@ def load_labels(path):
 
 def save_model(model, epoch):
     create_directory_if_doesnt_exist(config.SAVED_MODELS_PATH)
+    dev_mode_string = "_dev" if config.IS_DEV_MODE else ""
     model.save_weights(os.path.join(
-        config.SAVED_MODELS_PATH, f"{model.name}_{epoch:06d}.h5"))
+        config.SAVED_MODELS_PATH, f"{model.name}_{epoch:06d}{dev_mode_string}.h5"))
 
 
 def setup_checkpoints(model, optimizer):
