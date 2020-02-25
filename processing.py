@@ -108,7 +108,6 @@ def processing_main(args,label_encoding=config.LABEL_ENCODING):
         for i in tqdm(range(config.DEV_MODE_SAMPLE_NUMBER if config.IS_DEV_MODE else len(songs_paths))):
             song_list.append(get_raw_data(songs_paths[i]))
 
-<<<<<<< HEAD
         all_mel_spectrogram = []
         for time_series in tqdm(song_list):
             all_mel_spectrogram.append(librosa.feature.melspectrogram(
@@ -116,30 +115,6 @@ def processing_main(args,label_encoding=config.LABEL_ENCODING):
     
         # Dumping song spectrograms
         utils.dump_elements(all_mel_spectrogram, config.DEV_DATA_PATH if config.IS_DEV_MODE else config.EMOTIFY_SPECTROGRAM_DUMP_PATH)   
-||||||| merged common ancestors
-    all_mel_spectrogram = []
-    for time_series in tqdm(song_list):
-        all_mel_spectrogram.append(librosa.feature.melspectrogram(
-            y=np.array(time_series, dtype=np.float), sr=config.SAMPLING_RATE, hop_length=config.FFT_HOP))
-    
-    # Dumping songs from the emotify dataset in the emotify dump file
-    utils.dump_elements(labels[:len(song_list)], config.DEV_LABELS_PATH if config.IS_DEV_MODE else config.EMOTIFY_LABELS_DUMP_PATH)
-    # Dumping song spectrograms
-    utils.dump_elements(all_mel_spectrogram, config.DEV_DATA_PATH if config.IS_DEV_MODE else config.EMOTIFY_SPECTROGRAM_DUMP_PATH)   
-=======
-    all_mel_spectrogram = []
-    for time_series in tqdm(song_list):
-        all_mel_spectrogram.append(librosa.feature.melspectrogram(
-            y=np.array(time_series, dtype=np.float), sr=config.SAMPLING_RATE, hop_length=config.FFT_HOP))
-
-    # Normalise
-    all_mel_spectrogram = normalise(all_mel_spectrogram)
-
-    # Dumping songs from the emotify dataset in the emotify dump file
-    utils.dump_elements(labels[:len(song_list)], config.DEV_LABELS_PATH if config.IS_DEV_MODE else config.EMOTIFY_LABELS_DUMP_PATH)
-    # Dumping song spectrograms
-    utils.dump_elements(all_mel_spectrogram, config.DEV_DATA_PATH if config.IS_DEV_MODE else config.EMOTIFY_SPECTROGRAM_DUMP_PATH)   
->>>>>>> master
 
 
 if __name__ == '__main__':
