@@ -1,4 +1,5 @@
 from sklearn.model_selection import train_test_split
+import numpy as np
 
 import config
 import utils
@@ -13,7 +14,7 @@ labels = utils.load_labels(config.EMOTIFY_LABELS_DUMP_PATH)
 
 # Train/test split 80/20, stratify on highest ranked emotion
 train_x, test_x, train_df_y, test_df_y = train_test_split(
-    all_spectro, labels, train_size=config.TRAIN_SIZE,  stratify=labels.idxmax(axis=1), random_state=42)
+    all_spectro, labels, train_size=config.TRAIN_SIZE, random_state=42)
 
 # Transform back to list
 train_y = list(train_df_y.values)
