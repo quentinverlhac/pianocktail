@@ -38,6 +38,7 @@ def main():
     # define metrics
     train_loss = tf.keras.metrics.Mean(name='train_loss')
     train_accuracy = tf.keras.metrics.Accuracy(name='train_accuracy')
+    mse = tf.keras.losses.MeanSquaredError()
 
     checkpoint, checkpoint_manager = setup_checkpoints(model, optimizer)
 
@@ -46,10 +47,7 @@ def main():
     def forward_pass(inputs, labels):
         print("tracing forward graph")
         predictions = model.call(inputs)
-        loss = tf.losses.categorical_crossentropy(
-            y_true=labels,
-            y_pred=predictions
-        )
+        loss = mse(labels, predictions)
         return predictions, loss
 
     @tf.function
