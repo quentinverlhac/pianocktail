@@ -71,3 +71,7 @@ def setup_checkpoints(model, optimizer):
         max_to_keep=1
     )
     return checkpoint, checkpoint_manager
+
+
+def normalise_by_max(spectrogram):
+    return spectrogram / np.max(np.abs(spectrogram))

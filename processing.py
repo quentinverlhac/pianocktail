@@ -10,6 +10,13 @@ import config
 import utils
 
 
+def normalise(spectrograms):
+    normalised_spectrograms = []
+    for spectrogram in spectrograms:
+        normalised_spectrograms.append(utils.normalise_by_max(spectrogram))
+    return normalised_spectrograms
+
+
 def get_raw_labels(path):
     """
     Load labels and process them.
@@ -80,7 +87,10 @@ def import_and_dump_raw_dataset():
     for time_series in tqdm(song_list):
         all_mel_spectrogram.append(librosa.feature.melspectrogram(
             y=np.array(time_series, dtype=np.float), sr=config.SAMPLING_RATE, hop_length=config.FFT_HOP))
-    
+
+    # Normalise
+    all_mel_spectrogram = normalise(all_mel_spectrogram)
+
     # Dumping songs from the emotify dataset in the emotify dump file
     utils.dump_elements(labels[:len(song_list)], config.DEV_LABELS_PATH if config.IS_DEV_MODE else config.EMOTIFY_LABELS_DUMP_PATH)
     # Dumping song spectrograms
