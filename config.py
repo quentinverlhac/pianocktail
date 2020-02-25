@@ -42,6 +42,15 @@ EMOTIFY_EMOTIONS_ORDERED_LIST = ["amazement", "solemnity", "tenderness", "nostal
                                  "joyful_activation", "tension", "sadness"]
 NUMBER_OF_EMOTIONS = len(EMOTIFY_EMOTIONS_ORDERED_LIST)
 
+# Label encoding
+EMOTION_THRESH = 0.2
+class LabelEncodingEnum(Enum):
+    PROBA = "proba"
+    MAJORITY = "majority"
+    THRESHOLD = "threshold"
+
+LABEL_ENCODING = LabelEncodingEnum.THRESHOLD
+
 # Sampling and spectrogram variables
 SAMPLING_RATE = 44100
 FFT_HOP = 512
@@ -49,7 +58,6 @@ FFT_RATE = SAMPLING_RATE / FFT_HOP
 SUBSPECTROGRAM_DURATION_S = 5
 SUBSPECTROGRAM_POINTS = int(SUBSPECTROGRAM_DURATION_S * FFT_RATE)
 MEL_BINS = 128
-
 
 # Train size (0-1)
 TRAIN_SIZE = 0.8
