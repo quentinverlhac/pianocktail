@@ -1,4 +1,5 @@
 import tensorflow as tf
+import tensorflow_probability as tfp
 
 import config
 from utils import draw_subspectrogram, load_dump, save_model, setup_checkpoints
@@ -37,7 +38,7 @@ def main():
 
     # define metrics
     train_loss = tf.keras.metrics.Mean(name='train_loss')
-    train_accuracy = tf.keras.metrics.CategoricalAccuracy(name='train_accuracy')
+    train_accuracy = tf.keras.metrics.Mean(name='train_accuracy')
 
     checkpoint, checkpoint_manager = setup_checkpoints(model, optimizer)
 
@@ -62,9 +63,9 @@ def main():
 
         # compute metrics
         train_loss.update_state(loss)
-        train_accuracy.update_state(predictions, labels)
+        correlation = tfp.stats.correlation(predictions, labels)
 
-        return predictions, labels
+        return predictions, labels, correlation
 
     # ============================ train the model =============================
     # restore checkpoint
@@ -79,11 +80,15 @@ def main():
         checkpoint.epoch.assign(epoch)
 
         for iteration, (spectro, label) in enumerate(train_dataset):
-            predictions, labels = train_step(spectro, label)
+            predictions, labels, correlation = train_step(spectro, label)
+            
+            # TODO change this to a true correlation, per emotion
+            test = tfp.stats.correlation(predictions.numpy()[0], labels.numpy()[0], event_axis=None)
+            train_accuracy.update_state(abs(test))
 
             # display metrics
             if iteration % config.ITERATION_PRINT_PERIOD == 0:
-                template = 'iteration {} - loss: {:4.2f} - accuracy: {:5.2%}'
+                template = 'iteration {} - loss: {:4.2f} - correlation: {:4f}'
                 print(template.format(iteration, train_loss.result(), train_accuracy.result()))
                 if config.IS_VERBOSE:
                     emotion_template = 'Emotion category: {:>17} - prediction: {:10f} - label: {:10f} - difference: {:10f}'
