@@ -5,7 +5,8 @@ from enum import Enum
 
 # Set this to test code on limited sample number. Useful to test faster.
 IS_DEV_MODE = False
-DEV_MODE_SAMPLE_NUMBER = 10
+DEV_MODE_SAMPLE_NUMBER = 20
+IS_VERBOSE = False
 
 # Model
 class ModelEnum(Enum):
@@ -63,7 +64,7 @@ MEL_BINS = 128
 TRAIN_SIZE = 0.8
 
 # Training variables
-LEARNING_RATE = 10
+LEARNING_RATE = 0.01
 BATCH_SIZE = 1
 NB_EPOCHS = 10
 
