@@ -46,7 +46,7 @@ def main():
     def forward_pass(inputs, labels):
         print("tracing forward graph")
         predictions = model.call(inputs)
-        loss = tf.losses.categorical_crossentropy(
+        loss = - tf.losses.cosine_similarity(
             y_true=labels,
             y_pred=predictions
         )
