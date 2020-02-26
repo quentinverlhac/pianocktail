@@ -1,5 +1,4 @@
 import tensorflow as tf
-from enum import Enum
 
 import config
 from utils import draw_subspectrogram, load_dump, save_model, setup_checkpoints
@@ -8,9 +7,6 @@ from models.pianocktail_gru import PianocktailGRU
 
 
 def main():
-    class DatasetEnum(Enum):
-        TRAIN = "TRAIN"
-        TEST = "TEST"
     
     # import data
     train_spectrograms = load_dump(config.DEV_DATA_PATH if config.IS_DEV_MODE else config.TRAIN_DATA_PATH)
@@ -35,8 +31,8 @@ def main():
             tensor_label = tf.convert_to_tensor(labels[i])
             yield tensor_spectro, tensor_label
     
-    def generate_randomized_batched_dataset(use_test_dataset = False):
-        dataset = tf.data.Dataset.from_generator(generate_subspectrogram, (tf.float32, tf.float32), args=[use_test_dataset])
+    def generate_randomized_batched_dataset(use_test_dataset = False, duration_s = config.SUBSPECTROGRAM_DURATION_S, fft_rate = config.FFT_RATE, mel_bins = config.MEL_BINS):
+        dataset = tf.data.Dataset.from_generator(generate_subspectrogram, (tf.float32, tf.float32), args=[use_test_dataset, duration_s, fft_rate, mel_bins])
         return dataset.batch(config.BATCH_SIZE)
 
     train_dataset = generate_randomized_batched_dataset()
