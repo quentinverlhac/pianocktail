@@ -1,4 +1,5 @@
 import tensorflow as tf
+from enum import Enum
 
 import config
 from utils import draw_subspectrogram, load_dump, save_model, setup_checkpoints
@@ -7,23 +8,39 @@ from models.pianocktail_gru import PianocktailGRU
 
 
 def main():
+    class DatasetEnum(Enum):
+        TRAIN = "TRAIN"
+        TEST = "TEST"
+    
     # import data
     train_spectrograms = load_dump(config.DEV_DATA_PATH if config.IS_DEV_MODE else config.TRAIN_DATA_PATH)
+    test_spectrograms = load_dump(config.TEST_DATA_PATH)
 
     # import labels
     train_labels = load_dump(config.DEV_LABELS_PATH if config.IS_DEV_MODE else config.TRAIN_LABELS_PATH)
+    test_labels = load_dump(config.TEST_LABELS_PATH)
 
-    # generate dataset
-    def generate_subspectrogram(duration_s = config.SUBSPECTROGRAM_DURATION_S, fft_rate = config.FFT_RATE, mel_bins = config.MEL_BINS):
-        for i in range(len(train_labels)):
-            sub_spectro = draw_subspectrogram(train_spectrograms[i], duration_s, fft_rate, random_pick=config.RANDOM_PICK)
+    # generate datasets
+    def generate_subspectrogram(use_test_dataset = False, duration_s = config.SUBSPECTROGRAM_DURATION_S, fft_rate = config.FFT_RATE, mel_bins = config.MEL_BINS):
+        spectrograms = train_spectrograms
+        labels = train_labels
+        if use_test_dataset:
+            spectrograms = test_spectrograms
+            labels = test_labels
+
+        for i in range(len(labels)):
+            sub_spectro = draw_subspectrogram(spectrograms[i], duration_s, fft_rate, random_pick=config.RANDOM_PICK)
             tensor_spectro = tf.convert_to_tensor(sub_spectro)
             tensor_spectro = tf.transpose(tensor_spectro)
-            tensor_label = tf.convert_to_tensor(train_labels[i])
+            tensor_label = tf.convert_to_tensor(labels[i])
             yield tensor_spectro, tensor_label
+    
+    def generate_randomized_batched_dataset(use_test_dataset = False):
+        dataset = tf.data.Dataset.from_generator(generate_subspectrogram, (tf.float32, tf.float32), args=[use_test_dataset])
+        return dataset.batch(config.BATCH_SIZE)
 
-    train_dataset = tf.data.Dataset.from_generator(generate_subspectrogram, (tf.float32, tf.float32))
-    train_dataset = train_dataset.batch(config.BATCH_SIZE)
+    train_dataset = generate_randomized_batched_dataset()
+    test_dataset = generate_randomized_batched_dataset(use_test_dataset=True)
 
     # building the model
     if config.MODEL == config.ModelEnum.PIANOCKTAIL_GRU:
@@ -101,6 +118,7 @@ def main():
 
     save_model(model, epoch)
 
+    # ============================ test the model ==============================
 
 if __name__ == "__main__":
     main()
