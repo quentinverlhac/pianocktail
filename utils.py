@@ -13,10 +13,11 @@ def create_directory_if_doesnt_exist(path):
     Path(path).mkdir(parents=True, exist_ok=True)
 
 
-def draw_subspectrogram(spectrogram, duration_s, fft_rate):
+def draw_subspectrogram(spectrogram, duration_s, fft_rate, random_pick = False):
     """
     Draw a random subspectrogram of given time length from the given spectrogram
     """
+    if not random_pick: np.random.seed(42)
     offset = int(np.random.random() * (spectrogram.shape[1] - duration_s * fft_rate))
     return spectrogram[:, offset:offset + int(duration_s * fft_rate)]
 
@@ -71,3 +72,7 @@ def setup_checkpoints(model, optimizer):
         max_to_keep=1
     )
     return checkpoint, checkpoint_manager
+
+
+def normalise_by_max(spectrogram):
+    return spectrogram / np.max(np.abs(spectrogram))

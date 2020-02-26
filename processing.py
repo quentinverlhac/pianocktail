@@ -11,6 +11,13 @@ import config
 import utils
 
 
+def normalise(spectrograms):
+    normalised_spectrograms = []
+    for spectrogram in spectrograms:
+        normalised_spectrograms.append(utils.normalise_by_max(spectrogram))
+    return normalised_spectrograms
+
+
 def get_raw_labels(path):
     """
     Load labels and process them.
@@ -106,6 +113,7 @@ def processing_main(args,label_encoding=config.LABEL_ENCODING):
             all_mel_spectrogram.append(librosa.feature.melspectrogram(
                 y=np.array(time_series, dtype=np.float), sr=config.SAMPLING_RATE, hop_length=config.FFT_HOP))
     
+        all_mel_spectrogram = normalise(all_mel_spectrogram)
         # Dumping song spectrograms
         utils.dump_elements(all_mel_spectrogram, config.DEV_DATA_PATH if config.IS_DEV_MODE else config.EMOTIFY_SPECTROGRAM_DUMP_PATH)   
 
