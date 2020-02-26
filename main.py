@@ -16,7 +16,7 @@ def main():
     # generate dataset
     def generate_subspectrogram(duration_s = config.SUBSPECTROGRAM_DURATION_S, fft_rate = config.FFT_RATE, mel_bins = config.MEL_BINS):
         for i in range(len(train_labels)):
-            sub_spectro = draw_subspectrogram(train_spectrograms[i], duration_s, fft_rate)
+            sub_spectro = draw_subspectrogram(train_spectrograms[i], duration_s, fft_rate, random_pick=config.RANDOM_PICK)
             tensor_spectro = tf.convert_to_tensor(sub_spectro)
             tensor_spectro = tf.transpose(tensor_spectro)
             tensor_label = tf.convert_to_tensor(train_labels[i])
@@ -37,8 +37,7 @@ def main():
 
     # define metrics
     train_loss = tf.keras.metrics.Mean(name='train_loss')
-    train_accuracy = tf.keras.metrics.Accuracy(name='train_accuracy')
-    mse = tf.keras.losses.MeanSquaredError()
+    train_accuracy = tf.keras.metrics.BinaryAccuracy(name='train_accuracy')
 
     checkpoint, checkpoint_manager = setup_checkpoints(model, optimizer)
 
@@ -47,7 +46,10 @@ def main():
     def forward_pass(inputs, labels):
         print("tracing forward graph")
         predictions = model.call(inputs)
-        loss = mse(labels, predictions)
+        loss = tf.keras.losses.binary_crossentropy(
+            y_true = labels, 
+            y_pred = predictions
+        )
         return predictions, loss
 
     @tf.function
@@ -60,7 +62,7 @@ def main():
 
         # compute metrics
         train_loss.update_state(loss)
-        train_accuracy.update_state(predictions, labels)
+        train_accuracy.update_state(labels, predictions)
 
         return predictions, labels
 
