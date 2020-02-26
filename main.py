@@ -56,6 +56,24 @@ def main():
     train_loss = tf.keras.metrics.Mean(name='train_loss')
     train_accuracy = tf.keras.metrics.BinaryAccuracy(name='train_accuracy')
 
+    test_loss = tf.keras.metrics.Mean(name='test_loss')
+    test_accuracy = tf.keras.metrics.BinaryAccuracy(name='test_accuracy')
+
+    # display_and_reset_metrics is displaying loss and accuracy values with a nice format. It resets the metrics once it is done.
+    # is_test allows to display the final performances of the model.
+    def display_and_reset_metrics(loss, accuracy, predictions, labels, iteration = None, is_test = False):
+        iteration_header = 'Results on test dataset' if is_test else f'iteration {iteration}'
+        template = '{} - loss: {:4.2f} - accuracy: {:5.2%}'
+        print(template.format(iteration_header, loss.result(), accuracy.result()))
+        if config.IS_VERBOSE and not is_test:
+            emotion_template = 'Emotion category: {:>17} - prediction: {:10f} - label: {:10f} - difference: {:10f}'
+            for i in range(len(config.EMOTIFY_EMOTIONS_ORDERED_LIST)):
+                prediction = (predictions.numpy())[0][i]
+                label = (labels.numpy())[0][i]
+                print(emotion_template.format(config.EMOTIFY_EMOTIONS_ORDERED_LIST[i], prediction, label, prediction - label))
+        loss.reset_states()
+        accuracy.reset_states()
+
     checkpoint, checkpoint_manager = setup_checkpoints(model, optimizer)
 
     # declaring forward pass and gradient descent
@@ -100,16 +118,7 @@ def main():
 
             # display metrics
             if iteration % 10 == 0:
-                template = 'iteration {} - loss: {:4.2f} - accuracy: {:5.2%}'
-                print(template.format(iteration, train_loss.result(), train_accuracy.result()))
-                if config.IS_VERBOSE:
-                    emotion_template = 'Emotion category: {:>17} - prediction: {:10f} - label: {:10f} - difference: {:10f}'
-                    for i in range(len(config.EMOTIFY_EMOTIONS_ORDERED_LIST)):
-                        prediction = (predictions.numpy())[0][i]
-                        label = (labels.numpy())[0][i]
-                        print(emotion_template.format(config.EMOTIFY_EMOTIONS_ORDERED_LIST[i], prediction, label, prediction - label))
-                train_loss.reset_states()
-                train_accuracy.reset_states()
+                display_and_reset_metrics(train_loss, train_accuracy, predictions, labels, iteration=iteration)
 
             # manage checkpoint
             checkpoint.iteration.assign(iteration)
@@ -119,6 +128,16 @@ def main():
     save_model(model, epoch)
 
     # ============================ test the model ==============================
+
+    print(f"======================== evaluation on test data =========================")
+    for iteration, (spectro, label) in enumerate(test_dataset):
+        predictions, loss = forward_pass(spectro, label)
+
+        # compute metrics
+        test_loss.update_state(loss)
+        test_accuracy.update_state(label, predictions)
+
+    display_and_reset_metrics(test_loss, test_accuracy, predictions, label, is_test=True)
 
 if __name__ == "__main__":
     main()
