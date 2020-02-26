@@ -76,3 +76,19 @@ def setup_checkpoints(model, optimizer):
 
 def normalise_by_max(spectrogram):
     return spectrogram / np.max(np.abs(spectrogram))
+
+
+# display_and_reset_metrics is displaying loss and accuracy values with a nice format. It resets the metrics once it is done.
+# is_test allows to display the final performances of the model.
+def display_and_reset_metrics(loss, accuracy, predictions, labels, iteration = None, is_test = False):
+    iteration_header = 'Results on test dataset' if is_test else f'iteration {iteration}'
+    template = '{} - loss: {:4.2f} - accuracy: {:5.2%}'
+    print(template.format(iteration_header, loss.result(), accuracy.result()))
+    if config.IS_VERBOSE and not is_test:
+        emotion_template = 'Emotion category: {:>17} - prediction: {:10f} - label: {:10f} - difference: {:10f}'
+        for i in range(len(config.EMOTIFY_EMOTIONS_ORDERED_LIST)):
+            prediction = (predictions.numpy())[0][i]
+            label = (labels.numpy())[0][i]
+            print(emotion_template.format(config.EMOTIFY_EMOTIONS_ORDERED_LIST[i], prediction, label, prediction - label))
+    loss.reset_states()
+    accuracy.reset_states()
