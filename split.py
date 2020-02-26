@@ -1,5 +1,6 @@
-from sklearn.model_selection import train_test_split
+from skmultilearn.model_selection.iterative_stratification import iterative_train_test_split
 import numpy as np
+import pandas as pd
 
 import config
 import utils
@@ -10,15 +11,18 @@ utils.create_directory_if_doesnt_exist(config.SPLIT_DATA_DIRECTORY_PATH)
 # Load processed data
 all_spectro = utils.load_dump(config.EMOTIFY_SPECTROGRAM_DUMP_PATH)
 
-labels = utils.load_labels(config.EMOTIFY_LABELS_DUMP_PATH)
+index = np.array([[i+1] for i in range(len(all_spectro))])
+
+labels = utils.load_dump(config.EMOTIFY_LABELS_DUMP_PATH)
 
 # Train/test split 80/20, stratify on highest ranked emotion
-train_x, test_x, train_df_y, test_df_y = train_test_split(
-    all_spectro, labels, train_size=config.TRAIN_SIZE, random_state=42)
+train_x_index, train_y, test_x_index, test_y = iterative_train_test_split(
+    index, np.asarray(labels, dtype=np.int), test_size=(1-config.TRAIN_SIZE))
 
-# Transform back to list
-train_y = list(train_df_y.values)
-test_y = list(test_df_y.values)
+df_x = pd.DataFrame(all_spectro)
+train_x = list(df_x.iloc[list(map(lambda x: int(x[0]-1), train_x_index)), :].apply(lambda x: x[0], axis=1).values)
+test_x = list(df_x.iloc[list(map(lambda x: int(x[0]-1), test_x_index)), :].apply(lambda x: x[0], axis=1).values)
+
 
 # Dump split data
 utils.dump_elements(train_x, config.TRAIN_DATA_PATH)
