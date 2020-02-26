@@ -14,9 +14,11 @@ def main():
     train_labels = load_dump(config.DEV_LABELS_PATH if config.IS_DEV_MODE else config.TRAIN_LABELS_PATH)
 
     # generate dataset
-    def generate_subspectrogram(duration_s = config.SUBSPECTROGRAM_DURATION_S, fft_rate = config.FFT_RATE, mel_bins = config.MEL_BINS):
+    def generate_subspectrogram(duration_s=config.SUBSPECTROGRAM_DURATION_S, fft_rate=config.FFT_RATE,
+                                mel_bins=config.MEL_BINS):
         for i in range(len(train_labels)):
-            sub_spectro = draw_subspectrogram(train_spectrograms[i], duration_s, fft_rate, random_pick=config.RANDOM_PICK)
+            sub_spectro = draw_subspectrogram(train_spectrograms[i], duration_s, fft_rate,
+                                              random_pick=config.RANDOM_PICK)
             tensor_spectro = tf.convert_to_tensor(sub_spectro)
             tensor_spectro = tf.transpose(tensor_spectro)
             tensor_label = tf.convert_to_tensor(train_labels[i])
@@ -43,28 +45,28 @@ def main():
 
     # declaring forward pass and gradient descent
     @tf.function
-    def forward_pass(inputs, labels):
+    def forward_pass(inputs, labels_):
         print("tracing forward graph")
-        predictions = model.call(inputs)
+        predictions_ = model.call(inputs)
         loss = tf.keras.losses.binary_crossentropy(
-            y_true = labels, 
-            y_pred = predictions
+            y_true=labels_,
+            y_pred=predictions_
         )
-        return predictions, loss
+        return predictions_, loss
 
     @tf.function
-    def train_step(inputs, labels):
+    def train_step(inputs, labels_):
         print("tracing train graph")
         with tf.GradientTape() as tape:
-            predictions, loss = forward_pass(inputs, labels)
+            predictions_, loss = forward_pass(inputs, labels_)
         gradients = tape.gradient(loss, model.trainable_variables)
         optimizer.apply_gradients(zip(gradients, model.trainable_variables))
 
         # compute metrics
         train_loss.update_state(loss)
-        train_accuracy.update_state(labels, predictions)
+        train_accuracy.update_state(labels_, predictions_)
 
-        return predictions, labels
+        return predictions_, labels_
 
     # ============================ train the model =============================
     # restore checkpoint
@@ -90,7 +92,8 @@ def main():
                     for i in range(len(config.EMOTIFY_EMOTIONS_ORDERED_LIST)):
                         prediction = (predictions.numpy())[0][i]
                         label = (labels.numpy())[0][i]
-                        print(emotion_template.format(config.EMOTIFY_EMOTIONS_ORDERED_LIST[i], prediction, label, prediction - label))
+                        print(emotion_template.format(config.EMOTIFY_EMOTIONS_ORDERED_LIST[i], prediction, label,
+                                                      prediction - label))
                 train_loss.reset_states()
                 train_accuracy.reset_states()
 
