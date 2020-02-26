@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from pydub import AudioSegment
 from tqdm import tqdm
+import argparse
 
 import config
 import utils
@@ -51,6 +52,18 @@ def get_label_emotion_scores_for_track(raw_labels_df, genre, track_id):
         raise ValueError("matching_label_lists has more than one matching song: {}".format(matching_label_lists))
     return matching_label_lists[0]
 
+def thresh_label(label_list,threshold):
+    """
+    Encode label as 0 or 1 depending on the given threshold
+    """
+    return [0 if label < threshold else 1 for label in label_list]
+
+def major_label(label_list):
+    """
+    Encode label by setting the label with the highest probability to one
+    """
+    return [1 if np.argmax(label_list) == ind else 0 for ind in range(len(label_list))]
+
 
 def get_raw_data(path):
     """Convert to mono and return an array of samples"""
@@ -60,7 +73,7 @@ def get_raw_data(path):
     return segment.get_array_of_samples()
 
 
-def import_and_dump_raw_dataset():
+def processing_main(args,label_encoding=config.LABEL_ENCODING):
     """
     Import labels and samples from original dataset. 
     Process them and dump the output as pickle files.
@@ -77,25 +90,36 @@ def import_and_dump_raw_dataset():
                 # labels
                 genre = outer_path
                 track_id = int(inner_path.split(".")[0])
-                labels.append(get_label_emotion_scores_for_track(raw_labels_df, genre, track_id))
+                label = get_label_emotion_scores_for_track(raw_labels_df, genre, track_id)
+                if label_encoding == config.LabelEncodingEnum.MAJORITY:
+                    labels.append(major_label(label))
+                elif label_encoding == config.LabelEncodingEnum.THRESHOLD:
+                    labels.append(thresh_label(label,config.EMOTION_THRESH))
+                else:
+                    labels.append(label)
 
-    song_list = []
-    for i in tqdm(range(config.DEV_MODE_SAMPLE_NUMBER if config.IS_DEV_MODE else len(songs_paths))):
-        song_list.append(get_raw_data(songs_paths[i]))
+    # Dumping labels from the emotify dataset in the emotify label dump file
+    label_path = config.DEV_LABELS_PATH if config.IS_DEV_MODE else config.EMOTIFY_LABELS_DUMP_PATH
+    label_list = labels[:config.DEV_MODE_SAMPLE_NUMBER] if config.IS_DEV_MODE else labels
+    utils.dump_elements(label_list, label_path)
 
-    all_mel_spectrogram = []
-    for time_series in tqdm(song_list):
-        all_mel_spectrogram.append(librosa.feature.melspectrogram(
-            y=np.array(time_series, dtype=np.float), sr=config.SAMPLING_RATE, hop_length=config.FFT_HOP))
+    if not args.label_only:
+        song_list = []
+        for i in tqdm(range(config.DEV_MODE_SAMPLE_NUMBER if config.IS_DEV_MODE else len(songs_paths))):
+            song_list.append(get_raw_data(songs_paths[i]))
 
-    # Normalise
-    all_mel_spectrogram = normalise(all_mel_spectrogram)
-
-    # Dumping songs from the emotify dataset in the emotify dump file
-    utils.dump_elements(labels[:len(song_list)], config.DEV_LABELS_PATH if config.IS_DEV_MODE else config.EMOTIFY_LABELS_DUMP_PATH)
-    # Dumping song spectrograms
-    utils.dump_elements(all_mel_spectrogram, config.DEV_DATA_PATH if config.IS_DEV_MODE else config.EMOTIFY_SPECTROGRAM_DUMP_PATH)   
+        all_mel_spectrogram = []
+        for time_series in tqdm(song_list):
+            all_mel_spectrogram.append(librosa.feature.melspectrogram(
+                y=np.array(time_series, dtype=np.float), sr=config.SAMPLING_RATE, hop_length=config.FFT_HOP))
+    
+        all_mel_spectrogram = normalise(all_mel_spectrogram)
+        # Dumping song spectrograms
+        utils.dump_elements(all_mel_spectrogram, config.DEV_DATA_PATH if config.IS_DEV_MODE else config.EMOTIFY_SPECTROGRAM_DUMP_PATH)   
 
 
 if __name__ == '__main__':
-    import_and_dump_raw_dataset()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--label-only", action="store_true", help="only compute labels")
+    args = parser.parse_args()
+    processing_main(args)

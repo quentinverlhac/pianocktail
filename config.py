@@ -5,8 +5,9 @@ from enum import Enum
 
 # Set this to test code on limited sample number. Useful to test faster.
 IS_DEV_MODE = False
-DEV_MODE_SAMPLE_NUMBER = 20
+DEV_MODE_SAMPLE_NUMBER = 10
 IS_VERBOSE = False
+RANDOM_PICK = False
 
 # Model
 class ModelEnum(Enum):
@@ -43,6 +44,15 @@ EMOTIFY_EMOTIONS_ORDERED_LIST = ["amazement", "solemnity", "tenderness", "nostal
                                  "joyful_activation", "tension", "sadness"]
 NUMBER_OF_EMOTIONS = len(EMOTIFY_EMOTIONS_ORDERED_LIST)
 
+# Label encoding
+EMOTION_THRESH = 0.2
+class LabelEncodingEnum(Enum):
+    PROBA = "proba"
+    MAJORITY = "majority"
+    THRESHOLD = "threshold"
+
+LABEL_ENCODING = LabelEncodingEnum.THRESHOLD
+
 # Sampling and spectrogram variables
 SAMPLING_RATE = 44100
 FFT_HOP = 512
@@ -51,14 +61,13 @@ SUBSPECTROGRAM_DURATION_S = 5
 SUBSPECTROGRAM_POINTS = int(SUBSPECTROGRAM_DURATION_S * FFT_RATE)
 MEL_BINS = 128
 
-
 # Train size (0-1)
 TRAIN_SIZE = 0.8
 
 # Training variables
-LEARNING_RATE = 0.01
-BATCH_SIZE = 1
-NB_EPOCHS = 10
+LEARNING_RATE = 0.001
+BATCH_SIZE = 4
+NB_EPOCHS = 1000
 
 # Manage checkpoints
 RESTORE_CHECKPOINT = False
