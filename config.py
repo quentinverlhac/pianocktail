@@ -4,7 +4,7 @@ from enum import Enum
 # Config variables
 
 # Set this to test code on limited sample number. Useful to test faster.
-IS_DEV_MODE = False
+IS_DEV_MODE = True
 DEV_MODE_SAMPLE_NUMBER = 10
 IS_VERBOSE = False
 RANDOM_PICK = False
