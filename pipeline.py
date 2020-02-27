@@ -83,4 +83,4 @@ def train_step(inputs, labels):
 # restore checkpoint
 if config.RESTORE_CHECKPOINT:
     checkpoint.restore(checkpoint_manager.latest_checkpoint)
-    print(f"Restored checkpoint. Model {checkpoint.model.name} - epoch {checkpoint.epoch.value()} - iteration {checkpoint.iteration.value()}")
+    print(f"Restored checkpoint. Model {checkpoint.model.name} - epoch {checkpoint.epoch.value()}")
