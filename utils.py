@@ -15,13 +15,14 @@ def create_directory_if_doesnt_exist(path):
     Path(path).mkdir(parents=True, exist_ok=True)
 
 
-def draw_subspectrogram(spectrogram, duration_s, fft_rate, random_pick = False):
+def draw_subspectrogram(spectrogram, duration_s, fft_rate, random_pick=False):
     """
     Draw a random subspectrogram of given time length from the given spectrogram
     """
     if not random_pick: np.random.seed(42)
     offset = int(np.random.random() * (spectrogram.shape[1] - duration_s * fft_rate))
     return spectrogram[:, offset:offset + int(duration_s * fft_rate)]
+
 
 def segment_spectrogram(spectrogram, duration_s, fft_rate):
     """
@@ -102,7 +103,8 @@ def normalise_by_max(spectrogram):
     return spectrogram / np.max(np.abs(spectrogram))
 
 
-# display_and_reset_metrics is displaying loss and accuracy values with a nice format. It resets the metrics once it is done.
+# display_and_reset_metrics is displaying loss and accuracy values with a nice format. It resets the metrics once it is
+# done.
 # is_test allows to display the final performances of the model.
 def display_and_reset_metrics(loss, accuracy, predictions, labels, iteration = None, is_test = False):
     iteration_header = 'Results on test dataset' if is_test else f'iteration {iteration}'
