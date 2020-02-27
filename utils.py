@@ -7,6 +7,8 @@ import pandas as pd
 import tensorflow as tf
 
 import config
+from models.basic_cnn import BasicCNN
+from models.pianocktail_gru import PianocktailGRU
 
 
 def create_directory_if_doesnt_exist(path):
@@ -68,6 +70,16 @@ def save_model(model, epoch):
     dev_mode_string = "_dev" if config.IS_DEV_MODE else ""
     model.save_weights(os.path.join(
         config.SAVED_MODELS_PATH, f"{model.name}_{epoch:06d}{dev_mode_string}.h5"))
+
+def load_model(file_path, batch_size=1):
+    type = os.path.split(file_path)[-1].split("_")[0]
+    if type == "BasicCnn":
+        model = BasicCNN()
+    if type == "PianocktailGru":
+        model = PianocktailGRU()
+    model.build(input_shape=(batch_size, config.SUBSPECTROGRAM_POINTS, config.MEL_BINS))
+    model.load_weights(file_path)
+    return model
 
 
 def setup_checkpoints(model, optimizer):
