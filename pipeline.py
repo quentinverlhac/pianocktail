@@ -6,21 +6,14 @@ from models.basic_cnn import BasicCNN
 from models.pianocktail_gru import PianocktailGRU
 
 
-# import data
+# import data and labels
 train_spectrograms = load_dump(config.DEV_DATA_PATH if config.IS_DEV_MODE else config.TRAIN_DATA_PATH)
-test_spectrograms = load_dump(config.TEST_DATA_PATH)
-
-# import labels
 train_labels = load_dump(config.DEV_LABELS_PATH if config.IS_DEV_MODE else config.TRAIN_LABELS_PATH)
-test_labels = load_dump(config.TEST_LABELS_PATH)
 
 # generate datasets
 def generate_subspectrogram(use_test_dataset = False, duration_s = config.SUBSPECTROGRAM_DURATION_S, fft_rate = config.FFT_RATE, mel_bins = config.MEL_BINS):
     spectrograms = train_spectrograms
     labels = train_labels
-    if use_test_dataset:
-        spectrograms = test_spectrograms
-        labels = test_labels
 
     for i in range(len(labels)):
         sub_spectro = draw_subspectrogram(spectrograms[i], duration_s, fft_rate, random_pick=config.RANDOM_PICK)
@@ -34,7 +27,6 @@ def generate_randomized_batched_dataset(use_test_dataset = False, duration_s = c
     return dataset.batch(config.BATCH_SIZE)
 
 train_dataset = generate_randomized_batched_dataset()
-test_dataset = generate_randomized_batched_dataset(use_test_dataset=True)
 
 # building the model
 if config.MODEL == config.ModelEnum.PIANOCKTAIL_GRU:
@@ -50,14 +42,11 @@ optimizer = tf.optimizers.Adam(config.LEARNING_RATE)
 train_loss = tf.keras.metrics.Mean(name='train_loss')
 train_accuracy = tf.keras.metrics.BinaryAccuracy(name='train_accuracy')
 
-test_loss = tf.keras.metrics.Mean(name='test_loss')
-test_accuracy = tf.keras.metrics.BinaryAccuracy(name='test_accuracy')
-
 checkpoint, checkpoint_manager = setup_checkpoints(model, optimizer)
 
 # declaring forward pass and gradient descent
 @tf.function
-def forward_pass(inputs, labels):
+def forward_pass(inputs, labels, model):
     print("tracing forward graph")
     predictions = model.call(inputs)
     loss = tf.keras.losses.binary_crossentropy(
@@ -67,10 +56,10 @@ def forward_pass(inputs, labels):
     return predictions, loss
 
 @tf.function
-def train_step(inputs, labels):
+def train_step(inputs, labels, model):
     print("tracing train graph")
     with tf.GradientTape() as tape:
-        predictions, loss = forward_pass(inputs, labels)
+        predictions, loss = forward_pass(inputs, labels, model)
     gradients = tape.gradient(loss, model.trainable_variables)
     optimizer.apply_gradients(zip(gradients, model.trainable_variables))
 
