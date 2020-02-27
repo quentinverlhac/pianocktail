@@ -14,7 +14,7 @@ class ModelEnum(Enum):
     BASIC_CNN = "BASIC_CNN"
     PIANOCKTAIL_GRU = "PIANOCKTAIL_GRU"
 
-MODEL = ModelEnum.BASIC_CNN
+MODEL = ModelEnum.PIANOCKTAIL_GRU
 
 # Paths
 DIRECTORY_PATH = os.getcwd()
@@ -67,7 +67,10 @@ TRAIN_SIZE = 0.8
 # Training variables
 LEARNING_RATE = 0.001
 BATCH_SIZE = 4
-NB_EPOCHS = 1000
+if MODEL == ModelEnum.BASIC_CNN:
+    NB_EPOCHS = 20
+elif MODEL == ModelEnum.PIANOCKTAIL_GRU:
+    NB_EPOCHS = 100
 
 # Manage checkpoints
 RESTORE_CHECKPOINT = False
