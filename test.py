@@ -1,6 +1,6 @@
 from utils import display_and_reset_metrics, load_dump, segment_spectrogram
 import tensorflow as tf
-import absl
+import argparse
 
 import config
 
@@ -35,5 +35,8 @@ def average_predictions(full_spectrogram, model):
     return mean_predictions.result()
 
 if __name__ == '__main__':
-    model = tf.keras.models.load_model(model_path)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("model_path",help="path of the model to evaluate")
+    args = parser.parse_args()
+    model = tf.keras.models.load_model(args.model_path)
     test_model(model)
