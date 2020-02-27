@@ -19,10 +19,8 @@ labels = utils.load_dump(config.EMOTIFY_LABELS_DUMP_PATH)
 train_x_index, train_y, test_x_index, test_y = iterative_train_test_split(
     index, np.asarray(labels, dtype=np.int), test_size=(1-config.TRAIN_SIZE))
 
-df_x = pd.DataFrame(all_spectro)
-train_x = list(df_x.iloc[list(map(lambda x: int(x[0]-1), train_x_index)), :].apply(lambda x: x[0], axis=1).values)
-test_x = list(df_x.iloc[list(map(lambda x: int(x[0]-1), test_x_index)), :].apply(lambda x: x[0], axis=1).values)
-
+train_x = [all_spectro[index[0]-1] for index in train_x_index]
+test_x = [all_spectro[index[0]-1] for index in test_x_index]
 
 # Dump split data
 utils.dump_elements(train_x, config.TRAIN_DATA_PATH)
