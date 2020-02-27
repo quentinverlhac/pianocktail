@@ -42,31 +42,6 @@ def train():
 
     checkpoint, checkpoint_manager = utils.setup_checkpoints(model, optimizer)
 
-    # declaring forward pass and gradient descent
-    @tf.function
-    def forward_pass(inputs, labels_, model_):
-        print("tracing forward graph")
-        predictions_ = model_.call(inputs)
-        loss = tf.keras.losses.binary_crossentropy(
-            y_true=labels_,
-            y_pred=predictions_
-        )
-        return predictions_, loss
-
-    @tf.function
-    def train_step(inputs, labels_, model_):
-        print("tracing train graph")
-        with tf.GradientTape() as tape:
-            predictions_, loss = forward_pass(inputs, labels_, model_)
-        gradients = tape.gradient(loss, model_.trainable_variables)
-        optimizer.apply_gradients(zip(gradients, model_.trainable_variables))
-
-        # compute metrics
-        train_loss.update_state(loss)
-        train_accuracy.update_state(labels_, predictions_)
-
-        return predictions_, labels_
-
     # restore checkpoint
     if config.RESTORE_CHECKPOINT:
         checkpoint.restore(checkpoint_manager.latest_checkpoint)
@@ -80,7 +55,7 @@ def train():
         checkpoint.epoch.assign(epoch)
 
         for iteration, (spectro, label) in enumerate(train_dataset):
-            predictions, labels = train_step(spectro, label, model)
+            predictions, labels = train_step(spectro, label, model, optimizer, train_loss, train_accuracy)
 
             # display metrics
             if iteration % 10 == 0:
@@ -94,14 +69,31 @@ def train():
     utils.save_model(model, epoch)
 
 
+@tf.function
+def forward_pass(inputs, labels, model):
+    print("tracing forward graph")
+    predictions = model.call(inputs)
+    loss = tf.keras.losses.binary_crossentropy(
+        y_true=labels,
+        y_pred=predictions
+    )
+    return predictions, loss
 
 
+# declaring forward pass and gradient descent
+@tf.function
+def train_step(inputs, labels, model, optimizer, train_loss, train_accuracy):
+    print("tracing train graph")
+    with tf.GradientTape() as tape:
+        predictions_, loss = forward_pass(inputs, labels, model)
+    gradients = tape.gradient(loss, model.trainable_variables)
+    optimizer.apply_gradients(zip(gradients, model.trainable_variables))
 
-def generate_randomized_batched_dataset(use_test_dataset=False, duration_s=config.SUBSPECTROGRAM_DURATION_S,
-                                        fft_rate=config.FFT_RATE, mel_bins=config.MEL_BINS):
-    dataset = tf.data.Dataset.from_generator(generate_subspectrogram, (tf.float32, tf.float32),
-                                             args=[use_test_dataset, duration_s, fft_rate, mel_bins])
-    return dataset.batch(config.BATCH_SIZE)
+    # compute metrics
+    train_loss.update_state(loss)
+    train_accuracy.update_state(labels, predictions_)
+
+    return predictions_, labels
 
 
 if __name__ == '__main__':
