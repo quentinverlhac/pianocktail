@@ -13,7 +13,7 @@ def create_directory_if_doesnt_exist(path):
     Path(path).mkdir(parents=True, exist_ok=True)
 
 
-def draw_subspectrogram(spectrogram, duration_s, fft_rate, random_pick = False):
+def draw_subspectrogram(spectrogram, duration_s, fft_rate, random_pick = True):
     """
     Draw a random subspectrogram of given time length from the given spectrogram
     """
