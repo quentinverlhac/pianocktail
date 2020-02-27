@@ -21,6 +21,18 @@ def draw_subspectrogram(spectrogram, duration_s, fft_rate, random_pick = False):
     offset = int(np.random.random() * (spectrogram.shape[1] - duration_s * fft_rate))
     return spectrogram[:, offset:offset + int(duration_s * fft_rate)]
 
+def segment_spectrogram(spectrogram, duration_s, fft_rate):
+    """
+    Segment the spectrogram into successive subspectrograms of given length and returns
+    the list of all subspectrograms
+    """
+    spectrograms = []
+    sub_len = int(duration_s*fft_rate)
+    n_subspectros = int(spectrogram.shape[1]/sub_len)
+    for i in range(n_subspectros):
+        spectrograms.append(spectrogram[:,sub_len*i:sub_len*(i+1)])
+    return spectrograms
+    
 
 def dump_elements(elements, dump_path):
     """
