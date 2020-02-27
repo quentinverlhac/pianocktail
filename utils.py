@@ -62,7 +62,6 @@ def setup_checkpoints(model, optimizer):
     create_directory_if_doesnt_exist(config.CHECKPOINTS_PATH)
     checkpoint = tf.train.Checkpoint(
         epoch=tf.Variable(0),
-        iteration=tf.Variable(0),
         model=model,
         optimizer=optimizer
     )
