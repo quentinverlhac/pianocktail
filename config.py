@@ -74,4 +74,3 @@ elif MODEL == ModelEnum.PIANOCKTAIL_GRU:
 
 # Manage checkpoints
 RESTORE_CHECKPOINT = False
-SAVE_PERIOD = 100

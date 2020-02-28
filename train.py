@@ -45,14 +45,12 @@ def train():
     # restore checkpoint
     if config.RESTORE_CHECKPOINT:
         checkpoint.restore(checkpoint_manager.latest_checkpoint)
-        print(
-            f"Restored checkpoint. Model {checkpoint.model.name} - epoch {checkpoint.epoch.value()} - iteration {checkpoint.iteration.value()}")
+        print(f"Restored checkpoint. Model {checkpoint.model.name} - epoch {checkpoint.epoch.value()}")
 
     # for test we iterate over samples one by one
-    for epoch in range(config.NB_EPOCHS):
+    for epoch in range(checkpoint.epoch.value(), config.NB_EPOCHS):
 
         print(f"============================ epoch {epoch} =============================")
-        checkpoint.epoch.assign(epoch)
 
         for iteration, (spectro, label) in enumerate(train_dataset):
             predictions, labels = train_step(spectro, label, model, optimizer, train_loss, train_accuracy)
@@ -61,10 +59,9 @@ def train():
             if iteration % 10 == 0:
                 utils.display_and_reset_metrics(train_loss, train_accuracy, predictions, labels, iteration=iteration)
 
-            # manage checkpoint
-            checkpoint.iteration.assign(iteration)
-            if iteration % config.SAVE_PERIOD == 0:
-                checkpoint_manager.save()
+        # save checkpoint
+        checkpoint.epoch.assign_add(1)
+        checkpoint_manager.save()
 
     utils.save_model(model, epoch)
 
