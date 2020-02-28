@@ -68,19 +68,23 @@ def train():
 
     utils.save_model(model, epoch)
 
+# declaring forward pass and gradient descent
 
 @tf.function
 def forward_pass(inputs, labels, model):
     print("tracing forward graph")
     predictions = model.call(inputs)
-    loss = tf.keras.losses.binary_crossentropy(
+    if config.LABEL_ENCODING == config.LabelEncodingEnum.MAJORITY:
+        loss_func = tf.keras.categorical_crossentropy
+    if config.LABEL_ENCODING == config.LabelEncodingEnum.THRESHOLD:
+        loss_func = tf.keras.losses.binary_crossentropy
+    loss = loss_func(
         y_true=labels,
         y_pred=predictions
     )
     return predictions, loss
 
 
-# declaring forward pass and gradient descent
 @tf.function
 def train_step(inputs, labels, model, optimizer, train_loss, train_accuracy):
     print("tracing train graph")

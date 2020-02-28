@@ -4,10 +4,10 @@ from enum import Enum
 # Config variables
 
 # Set this to test code on limited sample number. Useful to test faster.
-IS_DEV_MODE = True
+IS_DEV_MODE = False
 DEV_MODE_SAMPLE_NUMBER = 10
 IS_VERBOSE = False
-RANDOM_PICK = False
+RANDOM_PICK = True
 
 # Model
 class ModelEnum(Enum):
@@ -66,11 +66,11 @@ TRAIN_SIZE = 0.8
 
 # Training variables
 LEARNING_RATE = 0.001
-BATCH_SIZE = 4
+BATCH_SIZE = 8
 if MODEL == ModelEnum.BASIC_CNN:
     NB_EPOCHS = 20
 elif MODEL == ModelEnum.PIANOCKTAIL_GRU:
-    NB_EPOCHS = 100
+    NB_EPOCHS = 300
 
 # Manage checkpoints
 RESTORE_CHECKPOINT = False
