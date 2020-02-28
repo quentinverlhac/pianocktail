@@ -1,6 +1,7 @@
 from skmultilearn.model_selection.iterative_stratification import iterative_train_test_split
 import numpy as np
 import pandas as pd
+import random
 
 import config
 import utils
@@ -21,6 +22,11 @@ train_x_index, train_y, test_x_index, test_y = iterative_train_test_split(
 
 train_x = [all_spectro[index[0]-1] for index in train_x_index]
 test_x = [all_spectro[index[0]-1] for index in test_x_index]
+
+# Shuffle train data and labels
+temp = list(zip(train_x, train_y))
+random.shuffle(temp)
+train_x, train_y = zip(*temp)
 
 # Dump split data
 utils.dump_elements(train_x, config.TRAIN_DATA_PATH)
