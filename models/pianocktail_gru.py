@@ -7,7 +7,7 @@ import config
 
 
 class PianocktailGRU(Model):
-    def __init__(self, name='pianocktail_gru', subspectrogram_points = config.SUBSPECTROGRAM_POINTS, mel_bins = config.MEL_BINS, number_of_emotions = config.NUMBER_OF_EMOTIONS, **kwargs):
+    def __init__(self, name='PianocktailGru', subspectrogram_points = config.SUBSPECTROGRAM_POINTS, mel_bins = config.MEL_BINS, number_of_emotions = config.NUMBER_OF_EMOTIONS, **kwargs):
         super(PianocktailGRU, self).__init__(name=name, **kwargs)
 
         self.input_layer = InputLayer((subspectrogram_points, mel_bins), name=f"{name}_input")

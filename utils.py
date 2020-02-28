@@ -7,13 +7,15 @@ import pandas as pd
 import tensorflow as tf
 
 import config
+from models.basic_cnn import BasicCNN
+from models.pianocktail_gru import PianocktailGRU
 
 
 def create_directory_if_doesnt_exist(path):
     Path(path).mkdir(parents=True, exist_ok=True)
 
 
-def draw_subspectrogram(spectrogram, duration_s, fft_rate, random_pick = False):
+def draw_subspectrogram(spectrogram, duration_s, fft_rate, random_pick=False):
     """
     Draw a random subspectrogram of given time length from the given spectrogram
     """
@@ -21,6 +23,19 @@ def draw_subspectrogram(spectrogram, duration_s, fft_rate, random_pick = False):
     offset = int(np.random.random() * (spectrogram.shape[1] - duration_s * fft_rate))
     return spectrogram[:, offset:offset + int(duration_s * fft_rate)]
 
+
+def segment_spectrogram(spectrogram, duration_s, fft_rate):
+    """
+    Segment the spectrogram into successive subspectrograms of given length and returns
+    the list of all subspectrograms
+    """
+    spectrograms = []
+    sub_len = int(duration_s*fft_rate)
+    n_subspectros = int(spectrogram.shape[1]/sub_len)
+    for i in range(n_subspectros):
+        spectrograms.append(spectrogram[:,sub_len*i:sub_len*(i+1)])
+    return spectrograms
+    
 
 def dump_elements(elements, dump_path):
     """
@@ -57,6 +72,16 @@ def save_model(model, epoch):
     model.save_weights(os.path.join(
         config.SAVED_MODELS_PATH, f"{model.name}_{epoch:06d}{dev_mode_string}.h5"))
 
+def load_model(file_path, batch_size=1):
+    type = os.path.split(file_path)[-1].split("_")[0]
+    if type == "BasicCnn":
+        model = BasicCNN()
+    if type == "PianocktailGru":
+        model = PianocktailGRU()
+    model.build(input_shape=(batch_size, config.SUBSPECTROGRAM_POINTS, config.MEL_BINS))
+    model.load_weights(file_path)
+    return model
+
 
 def setup_checkpoints(model, optimizer):
     create_directory_if_doesnt_exist(config.CHECKPOINTS_PATH)
@@ -77,7 +102,8 @@ def normalise_by_max(spectrogram):
     return spectrogram / np.max(np.abs(spectrogram))
 
 
-# display_and_reset_metrics is displaying loss and accuracy values with a nice format. It resets the metrics once it is done.
+# display_and_reset_metrics is displaying loss and accuracy values with a nice format. It resets the metrics once it is
+# done.
 # is_test allows to display the final performances of the model.
 def display_and_reset_metrics(loss, accuracy, predictions, labels, iteration = None, is_test = False):
     iteration_header = 'Results on test dataset' if is_test else f'iteration {iteration}'
