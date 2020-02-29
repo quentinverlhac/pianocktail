@@ -1,7 +1,7 @@
 import tensorflow as tf 
 
 from tensorflow.keras import Model
-from tensorflow.keras.layers import Reshape, GRU, GRUCell, Dense, InputLayer, GlobalAveragePooling1D
+from tensorflow.keras.layers import Reshape, GRU, GRUCell, Dense, InputLayer, GlobalAveragePooling1D, Dropout
 
 import config
 
@@ -14,16 +14,25 @@ class PianocktailGRU(Model):
         
         self.gru1 = GRU(100, name=f"{name}_gru1", return_sequences=True)
 
+        self.dropout1 = Dropout(0.1, name=f"{name}_dropout1")
+
         self.gru2 = GRU(50,name=f"{name}_gru2", return_sequences=True)
 
+        self.dropout2 = Dropout(0.1, name=f"{name}_dropout2")
+
         self.pool = GlobalAveragePooling1D(name=f"{name}_average")
+
+        self.dropout3 = Dropout(0.1, name=f"{name}_dropout3")
 
         self.dense = Dense(number_of_emotions, activation=tf.nn.sigmoid, name=f"{name}_output")
 
     def call(self, inputs, training=True):
         net = self.input_layer(inputs)
         net = self.gru1(net, training=training)
+        net = self.dropout1(net)
         net = self.gru2(net, training=training)
+        net = self.dropout2(net)
         net = self.pool(net)
+        net = self.dropout3(net)
         net = self.dense(net)
         return net
