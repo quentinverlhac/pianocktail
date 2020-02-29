@@ -7,7 +7,7 @@ import pandas as pd
 import tensorflow as tf
 
 import config
-from models.basic_cnn import BasicCNN
+from models.pianocktail_cnn import PianocktailCNN
 from models.pianocktail_gru import PianocktailGRU
 
 
@@ -66,8 +66,8 @@ def load_labels(path):
     return labels
 
 def initialize_model(model_name):
-    if model_name == config.ModelEnum.BASIC_CNN.value:
-        return BasicCNN()
+    if model_name == config.ModelEnum.PIANOCKTAIL_CNN.value:
+        return PianocktailCNN()
     elif model_name == config.ModelEnum.PIANOCKTAIL_GRU.value:
         return PianocktailGRU()
     else:

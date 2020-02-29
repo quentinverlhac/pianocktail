@@ -11,8 +11,8 @@ RANDOM_PICK = True
 
 # Model
 class ModelEnum(Enum):
-    BASIC_CNN = "BasicCnn"
-    PIANOCKTAIL_GRU = "PianocktailGru"
+    PIANOCKTAIL_CNN = "PianocktailCNN"
+    PIANOCKTAIL_GRU = "PianocktailGRU"
 
 MODEL = ModelEnum.PIANOCKTAIL_GRU
 

@@ -2,7 +2,7 @@ import tensorflow as tf
 import argparse
 
 import config
-from models.basic_cnn import BasicCNN
+from models.pianocktail_cnn import PianocktailCNN
 from models.pianocktail_gru import PianocktailGRU
 import utils
 
