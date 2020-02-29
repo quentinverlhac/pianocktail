@@ -74,10 +74,12 @@ def save_model(model, epoch):
 
 def load_model(file_path, batch_size=1):
     type = os.path.split(file_path)[-1].split("_")[0]
-    if type == "BasicCnn":
+    if type == config.ModelEnum.BASIC_CNN.value:
         model = BasicCNN()
-    if type == "PianocktailGru":
+    elif type == config.ModelEnum.PIANOCKTAIL_GRU.value:
         model = PianocktailGRU()
+    else:
+        raise Exception(f"The name of the saved model doesn't match any model type. It should be one of the following: {[model.value for model in config.ModelEnum]}")
     model.build(input_shape=(batch_size, config.SUBSPECTROGRAM_POINTS, config.MEL_BINS))
     model.load_weights(file_path)
     return model
