@@ -29,6 +29,7 @@ def train(model_name=config.MODEL.value):
             yield tensor_spectro, tensor_label
 
     if config.SEQUENTIAL_TRAINING:
+        train_spectrograms = [spectrogram.T for spectrogram in train_spectrograms]
         train_dataset = tf.data.Dataset.from_tensor_slices((train_spectrograms, train_labels))
     else:
         train_dataset = tf.data.Dataset.from_generator(generate_subspectrogram, (tf.float32, tf.float32))
