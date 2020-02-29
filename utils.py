@@ -119,7 +119,7 @@ def normalise_by_max(spectrogram):
 # display_and_reset_metrics is displaying loss and accuracy values with a nice format. It resets the metrics once it is
 # done.
 # is_test allows to display the final performances of the model.
-def display_and_reset_metrics(loss, accuracy, predictions, labels, epoch = None, is_test = False):
+def display_and_reset_metrics(loss, accuracy, predictions, labels, epoch=None, is_test=False):
     epoch_header = 'Results on test dataset' if is_test else f'epoch {epoch}'
     template = '{} - loss: {:4.2f} - accuracy: {:5.2%}'
     print(template.format(epoch_header, loss.result(), accuracy.result()))
@@ -131,6 +131,33 @@ def display_and_reset_metrics(loss, accuracy, predictions, labels, epoch = None,
             print(emotion_template.format(config.EMOTIFY_EMOTIONS_ORDERED_LIST[i], prediction, label, prediction - label))
     loss.reset_states()
     accuracy.reset_states()
+
+
+def test_model(model, data, labels, test_loss, test_accuracy, is_test=False):
+    for i, label in enumerate(labels):
+        predictions = average_predictions(data[i], model)
+        if config.IS_VERBOSE:
+            print(f'Labels: {label} - predictions: {predictions}')
+        # compute metrics
+        loss = tf.keras.metrics.binary_crossentropy(y_pred=predictions, y_true=label)
+        test_loss.update_state(loss)
+        test_accuracy.update_state(label, predictions)
+
+    display_and_reset_metrics(test_loss, test_accuracy, predictions, label, is_test)
+
+
+def average_predictions(full_spectrogram, model):
+    """
+    Average predictions of the model over all segments in the spectrogram
+    """
+    segmented_spectro = segment_spectrogram(full_spectrogram, config.SUBSPECTROGRAM_DURATION_S, config.FFT_RATE)
+    all_predictions = []
+    for spectro in segmented_spectro:
+        tensor_spectro = tf.convert_to_tensor(spectro)
+        tensor_spectro = tf.transpose(tensor_spectro)
+        tensor_spectro = tf.reshape(tensor_spectro,[1,tensor_spectro.shape[0],tensor_spectro.shape[1]])
+        all_predictions.append(model.call(tensor_spectro))
+    return tf.add_n(all_predictions)/len(segmented_spectro)
 
 
 def save_and_display_loss_through_epochs(epoch_range, loss, model_name):
