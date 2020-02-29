@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+import matplotlib.pyplot as plt 
 
 import config
 from models.pianocktail_cnn import PianocktailCNN
@@ -73,10 +74,13 @@ def initialize_model(model_name):
     else:
         raise Exception(f"The name of the saved model doesn't match any model type. It should be one of the following: {[model.value for model in config.ModelEnum]}")
 
+def get_save_file_name(model_name, epoch):
+    dev_mode_string = "_dev" if config.IS_DEV_MODE else ""
+    return f"{model_name}_{epoch:06d}{dev_mode_string}"
+
 def save_model(model, epoch):
     create_directory_if_doesnt_exist(config.SAVED_MODELS_PATH)
-    dev_mode_string = "_dev" if config.IS_DEV_MODE else ""
-    save_path = os.path.join(config.SAVED_MODELS_PATH, f"{model.name}_{epoch:06d}{dev_mode_string}.h5")
+    save_path = os.path.join(config.SAVED_MODELS_PATH, get_save_file_name(model.name, epoch) + ".h5")
     model.save_weights(save_path)
     print(f"Saved model {model.name} at {save_path}")
 
@@ -110,10 +114,10 @@ def normalise_by_max(spectrogram):
 # display_and_reset_metrics is displaying loss and accuracy values with a nice format. It resets the metrics once it is
 # done.
 # is_test allows to display the final performances of the model.
-def display_and_reset_metrics(loss, accuracy, predictions, labels, iteration = None, is_test = False):
-    iteration_header = 'Results on test dataset' if is_test else f'iteration {iteration}'
+def display_and_reset_metrics(loss, accuracy, predictions, labels, epoch = None, is_test = False):
+    epoch_header = 'Results on test dataset' if is_test else f'epoch {epoch}'
     template = '{} - loss: {:4.2f} - accuracy: {:5.2%}'
-    print(template.format(iteration_header, loss.result(), accuracy.result()))
+    print(template.format(epoch_header, loss.result(), accuracy.result()))
     if config.IS_VERBOSE and not is_test:
         emotion_template = 'Emotion category: {:>17} - prediction: {:10f} - label: {:10f} - difference: {:10f}'
         for i in range(len(config.EMOTIFY_EMOTIONS_ORDERED_LIST)):
@@ -122,3 +126,13 @@ def display_and_reset_metrics(loss, accuracy, predictions, labels, iteration = N
             print(emotion_template.format(config.EMOTIFY_EMOTIONS_ORDERED_LIST[i], prediction, label, prediction - label))
     loss.reset_states()
     accuracy.reset_states()
+
+def save_and_display_loss_through_epochs(epoch_range, loss, model_name):
+    create_directory_if_doesnt_exist(config.SAVED_LOSS_GRAPHS_PATH)
+    file_name = get_save_file_name(model_name, epoch_range[-1]) + ".png"
+    plt.plot(epoch_range, loss)
+    plt.xlabel('epochs')
+    plt.ylabel('loss')
+    plt.title('Evolution of loss through epochs')
+    plt.savefig(os.path.join(config.SAVED_LOSS_GRAPHS_PATH, file_name))
+    plt.show()

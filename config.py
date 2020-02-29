@@ -38,6 +38,8 @@ DEV_LABELS_PATH = os.path.join(SPLIT_DATA_DIRECTORY_PATH, "dev_labels.pkl")
 # Saved models
 CHECKPOINTS_PATH = os.path.join(DIRECTORY_PATH, 'checkpoints')
 SAVED_MODELS_PATH = os.path.join(DIRECTORY_PATH, 'saved_models')
+# Saved loss graphs
+SAVED_LOSS_GRAPHS_PATH = os.path.join(DIRECTORY_PATH, 'saved_loss_graphs')
 
 # The list of ordered emotions.
 EMOTIFY_EMOTIONS_ORDERED_LIST = ["amazement", "solemnity", "tenderness", "nostalgia", "calmness", "power",
