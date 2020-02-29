@@ -7,7 +7,7 @@ import config
 
 
 class PianocktailCNN(Model):
-    def __init__(self, name=config.ModelEnum.PIANOCKTAIL_CNN, subspectrogram_points = config.SUBSPECTROGRAM_POINTS, mel_bins = config.MEL_BINS, number_of_emotions = config.NUMBER_OF_EMOTIONS):
+    def __init__(self, name=config.ModelEnum.PIANOCKTAIL_CNN.value, subspectrogram_points = config.SUBSPECTROGRAM_POINTS, mel_bins = config.MEL_BINS, number_of_emotions = config.NUMBER_OF_EMOTIONS):
         super(PianocktailCNN,self).__init__(name=name)
 
         self.input_layer = InputLayer((subspectrogram_points, mel_bins), name=f"{name}_input")
