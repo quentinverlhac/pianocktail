@@ -65,6 +65,13 @@ def load_labels(path):
     labels.columns = config.EMOTIFY_EMOTIONS_ORDERED_LIST
     return labels
 
+def initialize_model(model_name):
+    if model_name == config.ModelEnum.BASIC_CNN.value:
+        return BasicCNN()
+    elif model_name == config.ModelEnum.PIANOCKTAIL_GRU.value:
+        return PianocktailGRU()
+    else:
+        raise Exception(f"The name of the saved model doesn't match any model type. It should be one of the following: {[model.value for model in config.ModelEnum]}")
 
 def save_model(model, epoch):
     create_directory_if_doesnt_exist(config.SAVED_MODELS_PATH)
@@ -73,13 +80,8 @@ def save_model(model, epoch):
         config.SAVED_MODELS_PATH, f"{model.name}_{epoch:06d}{dev_mode_string}.h5"))
 
 def load_model(file_path, batch_size=1):
-    type = os.path.split(file_path)[-1].split("_")[0]
-    if type == config.ModelEnum.BASIC_CNN.value:
-        model = BasicCNN()
-    elif type == config.ModelEnum.PIANOCKTAIL_GRU.value:
-        model = PianocktailGRU()
-    else:
-        raise Exception(f"The name of the saved model doesn't match any model type. It should be one of the following: {[model.value for model in config.ModelEnum]}")
+    model_name = os.path.split(file_path)[-1].split("_")[0]
+    model = initialize_model(model_name)
     model.build(input_shape=(batch_size, config.SUBSPECTROGRAM_POINTS, config.MEL_BINS))
     model.load_weights(file_path)
     return model

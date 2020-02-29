@@ -1,4 +1,5 @@
 import tensorflow as tf
+import argparse
 
 import config
 from models.basic_cnn import BasicCNN
@@ -6,7 +7,7 @@ from models.pianocktail_gru import PianocktailGRU
 import utils
 
 
-def train():
+def train(model_name=config.MODEL.value):
     # import data and labels
     train_spectrograms = utils.load_dump(config.DEV_DATA_PATH if config.IS_DEV_MODE else config.TRAIN_DATA_PATH)
     train_labels = utils.load_dump(config.DEV_LABELS_PATH if config.IS_DEV_MODE else config.TRAIN_LABELS_PATH)
@@ -28,10 +29,7 @@ def train():
     train_dataset = train_dataset.batch(config.BATCH_SIZE)
 
     # building the model
-    if config.MODEL == config.ModelEnum.PIANOCKTAIL_GRU:
-        model = PianocktailGRU()
-    elif config.MODEL == config.ModelEnum.BASIC_CNN:
-        model = BasicCNN()
+    model = utils.initialize_model(model_name)
     model.build(input_shape=(config.BATCH_SIZE, config.SUBSPECTROGRAM_POINTS, config.MEL_BINS))
     model.summary()
     optimizer = tf.optimizers.Adam(config.LEARNING_RATE)
@@ -98,4 +96,7 @@ def train_step(inputs, labels, model, optimizer, train_loss, train_accuracy):
 
 
 if __name__ == '__main__':
-    train()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("model_name", help="name of the model to train", choices=[model.value for model in config.ModelEnum])
+    args = parser.parse_args()
+    train(args.model_name)
