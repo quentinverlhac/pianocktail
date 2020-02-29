@@ -22,6 +22,14 @@ class PianocktailCNN(Model):
 
         self.pooling2 = AveragePooling2D(pool_size=2,name=f"{name}_pool2")
 
+        self.conv3 = Conv2D(filters=32,kernel_size=3,activation=tf.nn.relu,name=f"{name}_conv3")
+
+        self.pooling3 = AveragePooling2D(pool_size=2,name=f"{name}_pool3")
+
+        self.conv4 = Conv2D(filters=32,kernel_size=3,activation=tf.nn.relu,name=f"{name}_conv4")
+
+        self.pooling4 = AveragePooling2D(pool_size=2,name=f"{name}_pool4")
+
         self.flatten = Flatten(name=f"{name}_flatten")
 
         self.dense1 = Dense(200,activation=tf.nn.relu,name=f"{name}_dense1")
@@ -35,6 +43,10 @@ class PianocktailCNN(Model):
         net = self.pooling1(net)
         net = self.conv2(net)
         net = self.pooling2(net)
+        net = self.conv3(net)
+        net = self.pooling3(net)
+        net = self.conv4(net)
+        net = self.pooling4(net)
         net = self.flatten(net)
         net = self.dense1(net)
         net = self.dense2(net)
