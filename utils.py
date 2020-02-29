@@ -1,6 +1,7 @@
 import os
 import pickle as pkl
 from pathlib import Path
+import random
 
 import numpy as np
 import pandas as pd
@@ -121,3 +122,15 @@ def display_and_reset_metrics(loss, accuracy, predictions, labels, iteration = N
             print(emotion_template.format(config.EMOTIFY_EMOTIONS_ORDERED_LIST[i], prediction, label, prediction - label))
     loss.reset_states()
     accuracy.reset_states()
+
+
+def shuffle_data_and_labels(data, labels):
+    """
+    Shuffles data and labels the same way
+    :param data: list: input data
+    :param labels: list: corresponding labels
+    :return: tuple, shuffled data and labels
+    """
+    temp = list(zip(data, labels))
+    random.shuffle(temp)
+    return zip(*temp)
