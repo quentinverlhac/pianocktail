@@ -50,6 +50,7 @@ def train(model_name=config.MODEL.value):
     # Val metrics
     val_loss = tf.keras.metrics.Mean(name='val_loss')
     val_accuracy = tf.keras.metrics.BinaryAccuracy(name='val_accuracy')
+    val_accuracies = []
 
     checkpoint, checkpoint_manager = utils.setup_checkpoints(model, optimizer)
 
@@ -75,12 +76,20 @@ def train(model_name=config.MODEL.value):
         checkpoint.epoch.assign_add(1)
         checkpoint_manager.save()
 
-    print("======================== evaluation on validation data =========================")
-    # test model on validation set
-    utils.test_model(model, val_spectrograms, val_labels, val_loss, val_accuracy)
+        if epoch % 10 == 0 or epoch == config.NB_EPOCHS - 1:
+            print("======================== evaluation on validation data =========================")
+            # test model on validation set
+            val_accuracies.append(utils.test_model(
+                model, val_spectrograms, val_labels, val_loss, val_accuracy, epoch=epoch+1))
 
     utils.save_model(model, epoch)
-    utils.save_and_display_loss_through_epochs(epoch_range, loss_history, model.name)
+    utils.save_and_display_loss_through_epochs(epoch_range, loss_history, model.name, "training loss")
+
+    # Plot val accuracies
+    val_accuracy_range = [i for i in epoch_range if i % 10 == 0 or i == config.NB_EPOCHS - 1]
+    utils.save_and_display_loss_through_epochs(val_accuracy_range, val_accuracies, model.name, "validation accuracy")
+    best_epoch = (len(val_accuracies) - list(reversed(val_accuracies)).index(max(val_accuracies)) - 1) * 10
+    print(f"Best validation accuracy was epoch {best_epoch}")
 
 
 # declaring forward pass and gradient descent

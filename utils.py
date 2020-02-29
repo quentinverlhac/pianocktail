@@ -146,7 +146,7 @@ def display_and_reset_metrics(loss, accuracy, predictions, labels, epoch=None, i
     accuracy.reset_states()
 
 
-def test_model(model, data, labels, test_loss, test_accuracy, is_test=False):
+def test_model(model, data, labels, test_loss, test_accuracy, epoch=None, is_test=False):
     for i, label in enumerate(labels):
         predictions = average_predictions(data[i], model)
         if config.IS_VERBOSE:
@@ -155,8 +155,9 @@ def test_model(model, data, labels, test_loss, test_accuracy, is_test=False):
         loss = tf.keras.metrics.binary_crossentropy(y_pred=predictions, y_true=label)
         test_loss.update_state(loss)
         test_accuracy.update_state(label, predictions)
-
-    display_and_reset_metrics(test_loss, test_accuracy, predictions, label, is_test)
+    this_test_accuracy = test_accuracy.result()
+    display_and_reset_metrics(test_loss, test_accuracy, predictions, label, epoch=epoch, is_test=is_test)
+    return this_test_accuracy
 
 
 def average_predictions(full_spectrogram, model):
@@ -173,13 +174,13 @@ def average_predictions(full_spectrogram, model):
     return tf.add_n(all_predictions)/len(segmented_spectro)
 
 
-def save_and_display_loss_through_epochs(epoch_range, loss, model_name):
+def save_and_display_loss_through_epochs(epoch_range, loss, model_name, y_label):
     create_directory_if_doesnt_exist(config.SAVED_LOSS_GRAPHS_PATH)
     file_name = get_save_file_name(model_name, epoch_range[-1]) + ".png"
     plt.plot(epoch_range, loss)
     plt.xlabel('epochs')
-    plt.ylabel('loss')
-    plt.title('Evolution of loss through epochs')
+    plt.ylabel(f'{y_label}')
+    plt.title(f'Evolution of {y_label} through epochs')
     plt.savefig(os.path.join(config.SAVED_LOSS_GRAPHS_PATH, file_name))
     plt.show()
 
