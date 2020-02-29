@@ -12,7 +12,7 @@ def train(model_name=config.MODEL.value):
     train_spectrograms = utils.load_dump(config.DEV_DATA_PATH if config.IS_DEV_MODE else config.TRAIN_DATA_PATH)
     train_labels = utils.load_dump(config.DEV_LABELS_PATH if config.IS_DEV_MODE else config.TRAIN_LABELS_PATH)
 
-    # generate datasets
+    # generate and batch datasets
     def generate_subspectrogram(duration_s=config.SUBSPECTROGRAM_DURATION_S, fft_rate=config.FFT_RATE):
         spectrograms = train_spectrograms
         labels_ = train_labels
@@ -25,7 +25,10 @@ def train(model_name=config.MODEL.value):
             tensor_label = tf.convert_to_tensor(labels_[i])
             yield tensor_spectro, tensor_label
 
-    train_dataset = tf.data.Dataset.from_generator(generate_subspectrogram, (tf.float32, tf.float32))
+    if config.SEQUENTIAL_TRAINING:
+        train_dataset = tf.data.Dataset.from_tensor_slices((train_spectrograms, train_labels))
+    else:
+        train_dataset = tf.data.Dataset.from_generator(generate_subspectrogram, (tf.float32, tf.float32))
     train_dataset = train_dataset.batch(config.BATCH_SIZE)
 
     # building the model

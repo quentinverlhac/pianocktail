@@ -8,6 +8,7 @@ IS_DEV_MODE = False
 DEV_MODE_SAMPLE_NUMBER = 10
 IS_VERBOSE = False
 RANDOM_PICK = True
+SEQUENTIAL_TRAINING = True
 
 # Model
 class ModelEnum(Enum):

@@ -28,6 +28,9 @@ temp = list(zip(train_x, train_y))
 random.shuffle(temp)
 train_x, train_y = zip(*temp)
 
+if config.SEQUENTIAL_TRAINING:
+    train_x, train_y = utils.segment_dataset(train_x, train_y, config.SUBSPECTROGRAM_DURATION_S, config.FFT_RATE)
+
 # Dump split data
 utils.dump_elements(train_x, config.TRAIN_DATA_PATH)
 utils.dump_elements(train_y, config.TRAIN_LABELS_PATH)
