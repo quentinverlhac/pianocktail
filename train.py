@@ -12,6 +12,9 @@ def train(model_name=config.MODEL.value):
     train_spectrograms = utils.load_dump(config.DEV_DATA_PATH if config.IS_DEV_MODE else config.TRAIN_DATA_PATH)
     train_labels = utils.load_dump(config.DEV_LABELS_PATH if config.IS_DEV_MODE else config.TRAIN_LABELS_PATH)
 
+    val_spectrograms = utils.load_dump(config.VAL_DATA_PATH)
+    val_labels = utils.load_dump(config.VAL_LABELS_PATH)
+
     # generate and batch datasets
     def generate_subspectrogram(duration_s=config.SUBSPECTROGRAM_DURATION_S, fft_rate=config.FFT_RATE):
         spectrograms = train_spectrograms
@@ -41,6 +44,10 @@ def train(model_name=config.MODEL.value):
     train_loss = tf.keras.metrics.Mean(name='train_loss')
     train_accuracy = tf.keras.metrics.BinaryAccuracy(name='train_accuracy')
 
+    # Val metrics
+    val_loss = tf.keras.metrics.Mean(name='val_loss')
+    val_accuracy = tf.keras.metrics.BinaryAccuracy(name='val_accuracy')
+
     checkpoint, checkpoint_manager = utils.setup_checkpoints(model, optimizer)
 
     # restore checkpoint
@@ -49,7 +56,7 @@ def train(model_name=config.MODEL.value):
         print(f"Restored checkpoint. Model {checkpoint.model.name} - epoch {checkpoint.epoch.value()}")
 
     loss_history = []
-    epoch_range = range(checkpoint.epoch.value(), config.NB_EPOCHS) 
+    epoch_range = range(checkpoint.epoch.value(), config.NB_EPOCHS)
 
     # for test we iterate over samples one by one
     for epoch in epoch_range:
@@ -65,11 +72,15 @@ def train(model_name=config.MODEL.value):
         checkpoint.epoch.assign_add(1)
         checkpoint_manager.save()
 
+    print("======================== evaluation on validation data =========================")
+    # test model on validation set
+    utils.test_model(model, val_spectrograms, val_labels, val_loss, val_accuracy)
+
     utils.save_model(model, epoch)
     utils.save_and_display_loss_through_epochs(epoch_range, loss_history, model.name)
 
-# declaring forward pass and gradient descent
 
+# declaring forward pass and gradient descent
 @tf.function
 def forward_pass(inputs, labels, model):
     print("tracing forward graph")
