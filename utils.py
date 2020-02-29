@@ -1,11 +1,12 @@
 import os
 import pickle as pkl
 from pathlib import Path
+import random
 
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 
 import config
 from models.pianocktail_cnn import PianocktailCNN
@@ -66,6 +67,7 @@ def load_labels(path):
     labels.columns = config.EMOTIFY_EMOTIONS_ORDERED_LIST
     return labels
 
+
 def initialize_model(model_name):
     if model_name == config.ModelEnum.PIANOCKTAIL_CNN.value:
         return PianocktailCNN()
@@ -74,15 +76,18 @@ def initialize_model(model_name):
     else:
         raise Exception(f"The name of the saved model doesn't match any model type. It should be one of the following: {[model.value for model in config.ModelEnum]}")
 
+
 def get_save_file_name(model_name, epoch):
     dev_mode_string = "_dev" if config.IS_DEV_MODE else ""
     return f"{model_name}_{epoch:06d}{dev_mode_string}"
+
 
 def save_model(model, epoch):
     create_directory_if_doesnt_exist(config.SAVED_MODELS_PATH)
     save_path = os.path.join(config.SAVED_MODELS_PATH, get_save_file_name(model.name, epoch) + ".h5")
     model.save_weights(save_path)
     print(f"Saved model {model.name} at {save_path}")
+
 
 def load_model(file_path, batch_size=1):
     model_name = os.path.split(file_path)[-1].split("_")[0]
@@ -127,6 +132,7 @@ def display_and_reset_metrics(loss, accuracy, predictions, labels, epoch = None,
     loss.reset_states()
     accuracy.reset_states()
 
+
 def save_and_display_loss_through_epochs(epoch_range, loss, model_name):
     create_directory_if_doesnt_exist(config.SAVED_LOSS_GRAPHS_PATH)
     file_name = get_save_file_name(model_name, epoch_range[-1]) + ".png"
@@ -136,3 +142,15 @@ def save_and_display_loss_through_epochs(epoch_range, loss, model_name):
     plt.title('Evolution of loss through epochs')
     plt.savefig(os.path.join(config.SAVED_LOSS_GRAPHS_PATH, file_name))
     plt.show()
+
+
+def shuffle_data_and_labels(data, labels):
+    """
+    Shuffles data and labels the same way
+    :param data: list: input data
+    :param labels: list: corresponding labels
+    :return: tuple, shuffled data and labels
+    """
+    temp = list(zip(data, labels))
+    random.shuffle(temp)
+    return zip(*temp)
