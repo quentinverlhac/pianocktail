@@ -88,8 +88,8 @@ def train(model_name=config.MODEL.value):
     # Plot val accuracies
     val_accuracy_range = [i for i in epoch_range if i % 10 == 0 or i == config.NB_EPOCHS - 1]
     utils.save_and_display_loss_through_epochs(val_accuracy_range, val_accuracies, model.name, "validation accuracy")
-    best_epoch = (len(val_accuracies) - list(reversed(val_accuracies)).index(max(val_accuracies)) - 1) * 10
-    print(f"Best validation accuracy was epoch {best_epoch}")
+    best_epoch = (len(val_accuracies) - list(reversed(val_accuracies)).index(min(val_accuracies)) - 1) * 10
+    print(f"Best validation loss was epoch {best_epoch}")
 
 
 # declaring forward pass and gradient descent

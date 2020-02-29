@@ -155,9 +155,9 @@ def test_model(model, data, labels, test_loss, test_accuracy, epoch=None, is_tes
         loss = tf.keras.metrics.binary_crossentropy(y_pred=predictions, y_true=label)
         test_loss.update_state(loss)
         test_accuracy.update_state(label, predictions)
-    this_test_accuracy = test_accuracy.result()
+    this_test_loss = test_loss.result()
     display_and_reset_metrics(test_loss, test_accuracy, predictions, label, epoch=epoch, is_test=is_test)
-    return this_test_accuracy
+    return this_test_loss
 
 
 def average_predictions(full_spectrogram, model):
