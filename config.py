@@ -11,8 +11,8 @@ RANDOM_PICK = True
 
 # Model
 class ModelEnum(Enum):
-    BASIC_CNN = "BasicCnn"
-    PIANOCKTAIL_GRU = "PianocktailGru"
+    PIANOCKTAIL_CNN = "PianocktailCNN"
+    PIANOCKTAIL_GRU = "PianocktailGRU"
 
 MODEL = ModelEnum.PIANOCKTAIL_GRU
 
@@ -69,10 +69,7 @@ TRAIN_SIZE = 0.8
 # Training variables
 LEARNING_RATE = 0.001
 BATCH_SIZE = 8
-if MODEL == ModelEnum.BASIC_CNN:
-    NB_EPOCHS = 20
-elif MODEL == ModelEnum.PIANOCKTAIL_GRU:
-    NB_EPOCHS = 2000
+NB_EPOCHS = 300
 
 # Manage checkpoints
 RESTORE_CHECKPOINT = False
