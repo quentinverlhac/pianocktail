@@ -13,7 +13,7 @@ Download datasets and add them in the `data` folder, matching paths defined in `
 - Run `python processing.py` to process the data
 - Run `python split.py` to generate train/test split
 - Run `python train.py` to train the selected model on the dataset
-- Run `python test.py --model_path=path_to_model` to test the model saved at `path_to_model`
+- Run `python test.py path_to_model` to test the model saved at `path_to_model`
 
 ## Requirements
 

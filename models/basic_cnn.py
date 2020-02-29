@@ -7,7 +7,7 @@ import config
 
 
 class BasicCNN(Model):
-    def __init__(self, name="BasicCnn", subspectrogram_points = config.SUBSPECTROGRAM_POINTS, mel_bins = config.MEL_BINS, number_of_emotions = config.NUMBER_OF_EMOTIONS):
+    def __init__(self, name=config.ModelEnum.BASIC_CNN.value, subspectrogram_points = config.SUBSPECTROGRAM_POINTS, mel_bins = config.MEL_BINS, number_of_emotions = config.NUMBER_OF_EMOTIONS):
         super(BasicCNN,self).__init__()
 
         self.input_layer = InputLayer((subspectrogram_points, mel_bins), name=f"{name}_input")
