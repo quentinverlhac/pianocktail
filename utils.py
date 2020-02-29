@@ -7,7 +7,7 @@ import pandas as pd
 import tensorflow as tf
 
 import config
-from models.basic_cnn import BasicCNN
+from models.pianocktail_cnn import PianocktailCNN
 from models.pianocktail_gru import PianocktailGRU
 
 
@@ -66,8 +66,8 @@ def load_labels(path):
     return labels
 
 def initialize_model(model_name):
-    if model_name == config.ModelEnum.BASIC_CNN.value:
-        return BasicCNN()
+    if model_name == config.ModelEnum.PIANOCKTAIL_CNN.value:
+        return PianocktailCNN()
     elif model_name == config.ModelEnum.PIANOCKTAIL_GRU.value:
         return PianocktailGRU()
     else:
@@ -76,8 +76,9 @@ def initialize_model(model_name):
 def save_model(model, epoch):
     create_directory_if_doesnt_exist(config.SAVED_MODELS_PATH)
     dev_mode_string = "_dev" if config.IS_DEV_MODE else ""
-    model.save_weights(os.path.join(
-        config.SAVED_MODELS_PATH, f"{model.name}_{epoch:06d}{dev_mode_string}.h5"))
+    save_path = os.path.join(config.SAVED_MODELS_PATH, f"{model.name}_{epoch:06d}{dev_mode_string}.h5")
+    model.save_weights(save_path)
+    print(f"Saved model {model.name} at {save_path}")
 
 def load_model(file_path, batch_size=1):
     model_name = os.path.split(file_path)[-1].split("_")[0]
