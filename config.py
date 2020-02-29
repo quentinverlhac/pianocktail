@@ -67,10 +67,7 @@ TRAIN_SIZE = 0.8
 # Training variables
 LEARNING_RATE = 0.001
 BATCH_SIZE = 8
-if MODEL == ModelEnum.BASIC_CNN:
-    NB_EPOCHS = 20
-elif MODEL == ModelEnum.PIANOCKTAIL_GRU:
-    NB_EPOCHS = 300
+NB_EPOCHS = 300
 
 # Manage checkpoints
 RESTORE_CHECKPOINT = False
