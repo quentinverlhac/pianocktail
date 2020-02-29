@@ -31,6 +31,8 @@ EMOTIFY_LABELS_DUMP_PATH = os.path.join(EMOTIFY_DATA_PATH, "labels.pkl")
 SPLIT_DATA_DIRECTORY_PATH = os.path.join(DATA_DIRECTORY_PATH, "split_data")
 TRAIN_DATA_PATH = os.path.join(SPLIT_DATA_DIRECTORY_PATH, "train.pkl")
 TRAIN_LABELS_PATH = os.path.join(SPLIT_DATA_DIRECTORY_PATH, "train_labels.pkl")
+VAL_DATA_PATH = os.path.join(SPLIT_DATA_DIRECTORY_PATH, "val.pkl")
+VAL_LABELS_PATH = os.path.join(SPLIT_DATA_DIRECTORY_PATH, "val_labels.pkl")
 TEST_DATA_PATH = os.path.join(SPLIT_DATA_DIRECTORY_PATH, "test.pkl")
 TEST_LABELS_PATH = os.path.join(SPLIT_DATA_DIRECTORY_PATH, "test_labels.pkl")
 DEV_DATA_PATH = os.path.join(SPLIT_DATA_DIRECTORY_PATH, "dev.pkl")
@@ -63,8 +65,9 @@ SUBSPECTROGRAM_DURATION_S = 5
 SUBSPECTROGRAM_POINTS = int(SUBSPECTROGRAM_DURATION_S * FFT_RATE)
 MEL_BINS = 128
 
-# Train size (0-1)
-TRAIN_SIZE = 0.8
+# Train, val size (0-1)
+TRAIN_SIZE = 0.7
+VAL_SIZE = 0.15
 
 # Training variables
 LEARNING_RATE = 0.001
