@@ -16,9 +16,9 @@ def test_model(model):
 
     print(f"======================== evaluation on test data =========================")
     for i, label in enumerate(test_labels):
-        print(label)
         predictions = average_predictions(test_spectrograms[i], model)
-        print(predictions)
+        if config.IS_VERBOSE:
+            print(f'Labels: {(label.numpy())[0]} - predictions: {predictions}')
         # compute metrics
         loss = tf.keras.metrics.binary_crossentropy(y_pred=predictions, y_true=label)
         test_loss.update_state(loss)
