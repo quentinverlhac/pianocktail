@@ -29,10 +29,10 @@ class PianocktailGRU(Model):
     def call(self, inputs, training=True):
         net = self.input_layer(inputs)
         net = self.gru1(net, training=training)
-        net = self.dropout1(net)
+        net = self.dropout1(net, training=training)
         net = self.gru2(net, training=training)
-        net = self.dropout2(net)
+        net = self.dropout2(net, training=training)
         net = self.pool(net)
-        net = self.dropout3(net)
+        net = self.dropout3(net, training=training)
         net = self.dense(net)
         return net
