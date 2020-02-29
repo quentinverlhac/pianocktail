@@ -72,7 +72,7 @@ BATCH_SIZE = 8
 if MODEL == ModelEnum.BASIC_CNN:
     NB_EPOCHS = 20
 elif MODEL == ModelEnum.PIANOCKTAIL_GRU:
-    NB_EPOCHS = 300
+    NB_EPOCHS = 2000
 
 # Manage checkpoints
 RESTORE_CHECKPOINT = False
