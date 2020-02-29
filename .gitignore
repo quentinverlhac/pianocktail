@@ -137,6 +137,8 @@ data/
 # saved models
 saved_models/
 checkpoints/
+saved_loss_graphs/
+*.png
 
 # DS_Store
 .DS_Store
