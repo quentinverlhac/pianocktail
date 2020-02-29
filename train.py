@@ -45,23 +45,25 @@ def train(model_name=config.MODEL.value):
         checkpoint.restore(checkpoint_manager.latest_checkpoint)
         print(f"Restored checkpoint. Model {checkpoint.model.name} - epoch {checkpoint.epoch.value()}")
 
-    # for test we iterate over samples one by one
-    for epoch in range(checkpoint.epoch.value(), config.NB_EPOCHS):
+    loss_history = []
+    epoch_range = range(checkpoint.epoch.value(), config.NB_EPOCHS) 
 
-        print(f"============================ epoch {epoch} =============================")
+    # for test we iterate over samples one by one
+    for epoch in epoch_range:
 
         for iteration, (spectro, label) in enumerate(train_dataset):
             predictions, labels = train_step(spectro, label, model, optimizer, train_loss, train_accuracy)
 
-            # display metrics
-            if iteration % 10 == 0:
-                utils.display_and_reset_metrics(train_loss, train_accuracy, predictions, labels, iteration=iteration)
+        # display metrics
+        loss_history.append(train_loss.result())
+        utils.display_and_reset_metrics(train_loss, train_accuracy, predictions, labels, epoch=epoch)
 
         # save checkpoint
         checkpoint.epoch.assign_add(1)
         checkpoint_manager.save()
 
     utils.save_model(model, epoch)
+    utils.save_and_display_loss_through_epochs(epoch_range, loss_history, model.name)
 
 # declaring forward pass and gradient descent
 
