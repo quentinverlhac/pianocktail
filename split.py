@@ -1,4 +1,7 @@
-from sklearn.model_selection import train_test_split
+from skmultilearn.model_selection.iterative_stratification import iterative_train_test_split
+import numpy as np
+import pandas as pd
+import random
 
 import config
 import utils
@@ -9,15 +12,21 @@ utils.create_directory_if_doesnt_exist(config.SPLIT_DATA_DIRECTORY_PATH)
 # Load processed data
 all_spectro = utils.load_dump(config.EMOTIFY_SPECTROGRAM_DUMP_PATH)
 
-labels = utils.load_labels(config.EMOTIFY_LABELS_DUMP_PATH)
+index = np.array([[i+1] for i in range(len(all_spectro))])
+
+labels = utils.load_dump(config.EMOTIFY_LABELS_DUMP_PATH)
 
 # Train/test split 80/20, stratify on highest ranked emotion
-train_x, test_x, train_df_y, test_df_y = train_test_split(
-    all_spectro, labels, train_size=config.TRAIN_SIZE, random_state=42)
+train_x_index, train_y, test_x_index, test_y = iterative_train_test_split(
+    index, np.asarray(labels, dtype=np.int), test_size=(1-config.TRAIN_SIZE))
 
-# Transform back to list
-train_y = list(train_df_y.values)
-test_y = list(test_df_y.values)
+train_x = [all_spectro[index[0]-1] for index in train_x_index]
+test_x = [all_spectro[index[0]-1] for index in test_x_index]
+
+# Shuffle train data and labels
+temp = list(zip(train_x, train_y))
+random.shuffle(temp)
+train_x, train_y = zip(*temp)
 
 # Dump split data
 utils.dump_elements(train_x, config.TRAIN_DATA_PATH)
