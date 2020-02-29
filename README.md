@@ -12,8 +12,8 @@ Download datasets and add them in the `data` folder, matching paths defined in `
 - Choose the model in `config.py`
 - Run `python processing.py` to process the data
 - Run `python split.py` to generate train/test split
-- Run `python train.py` to train the selected model on the dataset
-- Run `python test.py path_to_model` to test the model saved at `path_to_model`
+- Run `python train.py {model_name}` to train the selected model on the dataset
+- Run `python test.py {path_to_model}` to test the model saved at `path_to_model`
 
 ## Requirements
 
