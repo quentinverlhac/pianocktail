@@ -14,15 +14,15 @@ class PianocktailGRU(Model):
         
         self.gru1 = GRU(100, name=f"{name}_gru1", return_sequences=True)
 
-        self.dropout1 = Dropout(0.1, name=f"{name}_dropout1")
+        self.dropout1 = Dropout(0.3, name=f"{name}_dropout1")
 
         self.gru2 = GRU(50,name=f"{name}_gru2", return_sequences=True)
 
-        self.dropout2 = Dropout(0.1, name=f"{name}_dropout2")
+        self.dropout2 = Dropout(0.3, name=f"{name}_dropout2")
 
         self.pool = GlobalAveragePooling1D(name=f"{name}_average")
 
-        self.dropout3 = Dropout(0.1, name=f"{name}_dropout3")
+        self.dropout3 = Dropout(0.3, name=f"{name}_dropout3")
 
         self.dense = Dense(number_of_emotions, activation=tf.nn.sigmoid, name=f"{name}_output")
 
