@@ -37,6 +37,19 @@ def segment_spectrogram(spectrogram, duration_s, fft_rate):
     for i in range(n_subspectros):
         spectrograms.append(spectrogram[:,sub_len*i:sub_len*(i+1)])
     return spectrograms
+
+def segment_dataset(all_spectrograms, labels, duration_s, fft_rate):
+    """
+    Segment all spectrograms in the dataset in snippets of the given duration, and update
+    the labels accordingly
+    """
+    new_spectrograms = []
+    new_labels = []
+    for i in range(len(all_spectrograms)):
+        segments = segment_spectrogram(all_spectrograms[i], duration_s, fft_rate)
+        new_spectrograms += segments
+        new_labels += [labels[i] for spectro in segments]
+    return new_spectrograms, new_labels
     
 
 def dump_elements(elements, dump_path):

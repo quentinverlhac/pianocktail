@@ -29,6 +29,9 @@ val_x = [all_spectro[index[0]-1] for index in val_x_index]
 test_x = [all_spectro[index[0]-1] for index in test_x_index]
 
 # Shuffle train data and labels
+if config.SEQUENTIAL_TRAINING:
+    train_x, train_y = utils.segment_dataset(train_x, train_y, config.SUBSPECTROGRAM_DURATION_S, config.FFT_RATE)
+    
 train_x, train_y = utils.shuffle_data_and_labels(train_x, train_y)
 
 # Dump split data
