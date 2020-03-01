@@ -73,11 +73,11 @@ def train(model_name=config.MODEL.value):
         loss_history.append(train_loss.result())
         utils.display_and_reset_metrics(train_loss, train_accuracy, predictions, labels, epoch=epoch)
 
-        # save checkpoint
-        checkpoint.epoch.assign_add(1)
-        checkpoint_manager.save()
-
         if epoch % config.VALIDATION_EPOCH_GAP == 0 or epoch == config.NB_EPOCHS - 1:
+            # save checkpoint
+            checkpoint_manager.save()
+            checkpoint.epoch.assign_add(10)
+            
             print("======================== evaluation on validation data =========================")
             # test model on validation set
             this_val_accuracy, this_val_loss = utils.test_model(
