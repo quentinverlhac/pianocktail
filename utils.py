@@ -177,7 +177,7 @@ def average_predictions(full_spectrogram, model):
 
 def save_and_display_metric_through_epochs(epoch_range, loss, model_name, y_label):
     create_directory_if_doesnt_exist(config.SAVED_LOSS_GRAPHS_PATH)
-    file_name = get_save_file_name(model_name, epoch_range[-1]) + ".png"
+    file_name = f"{model_name}_{y_label.replace(' ', '_')}.png"
     plt.plot(epoch_range, loss)
     plt.xlabel('epochs')
     plt.ylabel(f'{y_label}')
