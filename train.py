@@ -49,11 +49,11 @@ def train(model_name=config.MODEL.value, epochs=config.NB_EPOCHS, validate=False
     train_accuracy = tf.keras.metrics.BinaryAccuracy(name='train_accuracy')
 
     if validate:
-    # Val metrics
-    val_loss = tf.keras.metrics.Mean(name='val_loss')
-    val_accuracy = tf.keras.metrics.BinaryAccuracy(name='val_accuracy')
-    val_accuracies = []
-    val_losses = []
+        # Val metrics
+        val_loss = tf.keras.metrics.Mean(name='val_loss')
+        val_accuracy = tf.keras.metrics.BinaryAccuracy(name='val_accuracy')
+        val_accuracies = []
+        val_losses = []
 
     checkpoint, checkpoint_manager = utils.setup_checkpoints(model, optimizer)
 
