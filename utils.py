@@ -147,6 +147,10 @@ def display_and_reset_metrics(loss, accuracy, predictions, labels, epoch=None, i
 
 
 def test_model(model, data, labels, test_loss, test_accuracy, epoch=None, is_test=False):
+    if is_test:
+        per_emotion_score = {}
+        for emotion in config.EMOTIFY_EMOTIONS_ORDERED_LIST:
+            per_emotion_score[emotion] = tf.keras.metrics.BinaryAccuracy(name=f'{emotion}_accuracy')
     for i, label in enumerate(labels):
         predictions = average_predictions(data[i], model)
         if config.IS_VERBOSE:
@@ -155,9 +159,16 @@ def test_model(model, data, labels, test_loss, test_accuracy, epoch=None, is_tes
         loss = tf.keras.metrics.binary_crossentropy(y_pred=predictions, y_true=label)
         test_loss.update_state(loss)
         test_accuracy.update_state(label, predictions)
+        if is_test:
+            for i in range(len(config.EMOTIFY_EMOTIONS_ORDERED_LIST)):
+                per_emotion_score[config.EMOTIFY_EMOTIONS_ORDERED_LIST[i]].update_state([label[i]], [predictions.numpy()[0][i]])
     this_test_loss = test_loss.result()
     this_test_accuracy = test_accuracy.result()
     display_and_reset_metrics(test_loss, test_accuracy, predictions, label, epoch=epoch, is_test=is_test)
+    if is_test:
+        print("Accuracy per emotion on whole test set:")
+        for emotion in config.EMOTIFY_EMOTIONS_ORDERED_LIST:
+                print("{}: {:5.2%}".format(emotion, per_emotion_score[emotion].result()))
     return this_test_accuracy, this_test_loss
 
 
