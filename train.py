@@ -100,7 +100,7 @@ def train(model_name=config.MODEL.value):
 @tf.function
 def forward_pass(inputs, labels, model):
     print("tracing forward graph")
-    predictions = model.call(inputs, trainning=True)
+    predictions = model.call(inputs, training=True)
     if config.LABEL_ENCODING == config.LabelEncodingEnum.MAJORITY:
         loss_func = tf.keras.categorical_crossentropy
     if config.LABEL_ENCODING == config.LabelEncodingEnum.THRESHOLD:
