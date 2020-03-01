@@ -26,7 +26,7 @@ class PianocktailGRU(Model):
 
         self.dense = Dense(number_of_emotions, activation=tf.nn.sigmoid, name=f"{name}_output")
 
-    def call(self, inputs, training=True):
+    def call(self, inputs, training=False):
         net = self.input_layer(inputs)
         net = self.gru1(net, training=training)
         net = self.dropout1(net, training=training)

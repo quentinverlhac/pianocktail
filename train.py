@@ -30,6 +30,8 @@ def train(model_name=config.MODEL.value):
 
     if config.SEQUENTIAL_TRAINING:
         train_spectrograms = [spectrogram.T for spectrogram in train_spectrograms]
+        train_spectrograms = tf.convert_to_tensor(train_spectrograms)
+        train_labels = tf.convert_to_tensor(train_labels)
         train_dataset = tf.data.Dataset.from_tensor_slices((train_spectrograms, train_labels))
     else:
         train_dataset = tf.data.Dataset.from_generator(generate_subspectrogram, (tf.float32, tf.float32))
@@ -85,7 +87,7 @@ def train(model_name=config.MODEL.value):
 @tf.function
 def forward_pass(inputs, labels, model):
     print("tracing forward graph")
-    predictions = model.call(inputs)
+    predictions = model.call(inputs, trainning=True)
     if config.LABEL_ENCODING == config.LabelEncodingEnum.MAJORITY:
         loss_func = tf.keras.categorical_crossentropy
     if config.LABEL_ENCODING == config.LabelEncodingEnum.THRESHOLD:
