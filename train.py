@@ -50,6 +50,8 @@ def train(model_name=config.MODEL.value):
     # Val metrics
     val_loss = tf.keras.metrics.Mean(name='val_loss')
     val_accuracy = tf.keras.metrics.BinaryAccuracy(name='val_accuracy')
+    val_accuracies = []
+    val_losses = []
 
     checkpoint, checkpoint_manager = utils.setup_checkpoints(model, optimizer)
 
@@ -75,19 +77,31 @@ def train(model_name=config.MODEL.value):
         checkpoint.epoch.assign_add(1)
         checkpoint_manager.save()
 
-    print("======================== evaluation on validation data =========================")
-    # test model on validation set
-    utils.test_model(model, val_spectrograms, val_labels, val_loss, val_accuracy)
+        if epoch % config.VALIDATION_EPOCH_GAP == 0 or epoch == config.NB_EPOCHS - 1:
+            print("======================== evaluation on validation data =========================")
+            # test model on validation set
+            this_val_accuracy, this_val_loss = utils.test_model(
+                model, val_spectrograms, val_labels, val_loss, val_accuracy, epoch=epoch)
+            val_accuracies.append(this_val_accuracy)
+            val_losses.append(this_val_loss)
 
     utils.save_model(model, epoch)
-    utils.save_and_display_loss_through_epochs(epoch_range, loss_history, model.name)
+    utils.save_and_display_metric_through_epochs(epoch_range, loss_history, model.name, "training loss")
+
+    # Plot val accuracies
+    val_range = [i for i in epoch_range if i % config.VALIDATION_EPOCH_GAP == 0 or i == config.NB_EPOCHS - 1]
+    utils.save_and_display_metric_through_epochs(val_range, val_accuracies, model.name, "validation accuracy")
+    utils.save_and_display_metric_through_epochs(val_range, val_losses, model.name, "validation loss")
+    best_epoch = (len(val_accuracies) - list(reversed(val_accuracies)).index(
+        min(val_accuracies)) - 1) * config.VALIDATION_EPOCH_GAP
+    print(f"Best validation loss was epoch {best_epoch}")
 
 
 # declaring forward pass and gradient descent
 @tf.function
 def forward_pass(inputs, labels, model):
     print("tracing forward graph")
-    predictions = model.call(inputs, trainning=True)
+    predictions = model.call(inputs, training=True)
     if config.LABEL_ENCODING == config.LabelEncodingEnum.MAJORITY:
         loss_func = tf.keras.categorical_crossentropy
     if config.LABEL_ENCODING == config.LabelEncodingEnum.THRESHOLD:
@@ -116,6 +130,7 @@ def train_step(inputs, labels, model, optimizer, train_loss, train_accuracy):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("model_name", help="name of the model to train", choices=[model.value for model in config.ModelEnum])
+    parser.add_argument("model_name", help="name of the model to train",
+                        choices=[model.value for model in config.ModelEnum])
     args = parser.parse_args()
     train(args.model_name)

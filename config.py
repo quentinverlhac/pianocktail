@@ -8,7 +8,7 @@ IS_DEV_MODE = False
 DEV_MODE_SAMPLE_NUMBER = 10
 IS_VERBOSE = False
 RANDOM_PICK = True
-SEQUENTIAL_TRAINING = True
+SEQUENTIAL_TRAINING = False
 
 # Model
 class ModelEnum(Enum):
@@ -73,7 +73,7 @@ VAL_SIZE = 0.15
 # Training variables
 LEARNING_RATE = 0.001
 BATCH_SIZE = 8
-NB_EPOCHS = 300
+NB_EPOCHS = 1000
 
 # Manage checkpoints
 RESTORE_CHECKPOINT = False
