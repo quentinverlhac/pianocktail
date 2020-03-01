@@ -73,7 +73,7 @@ VAL_SIZE = 0.15
 # Training variables
 LEARNING_RATE = 0.001
 BATCH_SIZE = 8
-NB_EPOCHS = 1000
+NB_EPOCHS = 800
 VALIDATION_EPOCH_GAP = 10
 
 # Manage checkpoints
