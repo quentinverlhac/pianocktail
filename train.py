@@ -84,6 +84,7 @@ def train(model_name=config.MODEL.value):
                 model, val_spectrograms, val_labels, val_loss, val_accuracy, epoch=epoch)
             val_accuracies.append(this_val_accuracy)
             val_losses.append(this_val_loss)
+            print("============================ returning to training =============================")
 
     utils.save_model(model, epoch)
     utils.save_and_display_metric_through_epochs(epoch_range, loss_history, model.name, "training loss")
