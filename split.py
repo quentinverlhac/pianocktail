@@ -57,7 +57,6 @@ def split(validate):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--validate", action="store_true", help="tuple, creates a validation set if True")
+    parser.add_argument("--validate", action="store_true", help="Creates a validation set if True")
     args = parser.parse_args()
-    print(args)
     split(args.validate)
