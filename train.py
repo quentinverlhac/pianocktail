@@ -77,22 +77,23 @@ def train(model_name=config.MODEL.value):
         checkpoint.epoch.assign_add(1)
         checkpoint_manager.save()
 
-        if epoch % 10 == 0 or epoch == config.NB_EPOCHS - 1:
+        if epoch % config.VALIDATION_EPOCH_GAP == 0 or epoch == config.NB_EPOCHS - 1:
             print("======================== evaluation on validation data =========================")
             # test model on validation set
             this_val_accuracy, this_val_loss = utils.test_model(
-                model, val_spectrograms, val_labels, val_loss, val_accuracy, epoch=epoch+1)
+                model, val_spectrograms, val_labels, val_loss, val_accuracy, epoch=epoch)
             val_accuracies.append(this_val_accuracy)
             val_losses.append(this_val_loss)
 
     utils.save_model(model, epoch)
-    utils.save_and_display_loss_through_epochs(epoch_range, loss_history, model.name, "training loss")
+    utils.save_and_display_metric_through_epochs(epoch_range, loss_history, model.name, "training loss")
 
     # Plot val accuracies
-    val_range = [i for i in epoch_range if i % 10 == 0 or i == config.NB_EPOCHS - 1]
-    utils.save_and_display_loss_through_epochs(val_range, val_accuracies, model.name, "validation accuracy")
-    utils.save_and_display_loss_through_epochs(val_range, val_losses, model.name, "validation loss")
-    best_epoch = (len(val_accuracies) - list(reversed(val_accuracies)).index(min(val_accuracies)) - 1) * 10
+    val_range = [i for i in epoch_range if i % config.VALIDATION_EPOCH_GAP == 0 or i == config.NB_EPOCHS - 1]
+    utils.save_and_display_metric_through_epochs(val_range, val_accuracies, model.name, "validation accuracy")
+    utils.save_and_display_metric_through_epochs(val_range, val_losses, model.name, "validation loss")
+    best_epoch = (len(val_accuracies) - list(reversed(val_accuracies)).index(
+        min(val_accuracies)) - 1) * config.VALIDATION_EPOCH_GAP
     print(f"Best validation loss was epoch {best_epoch}")
 
 
@@ -129,6 +130,7 @@ def train_step(inputs, labels, model, optimizer, train_loss, train_accuracy):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("model_name", help="name of the model to train", choices=[model.value for model in config.ModelEnum])
+    parser.add_argument("model_name", help="name of the model to train",
+                        choices=[model.value for model in config.ModelEnum])
     args = parser.parse_args()
     train(args.model_name)

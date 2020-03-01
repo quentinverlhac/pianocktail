@@ -175,7 +175,7 @@ def average_predictions(full_spectrogram, model):
     return tf.add_n(all_predictions)/len(segmented_spectro)
 
 
-def save_and_display_loss_through_epochs(epoch_range, loss, model_name, y_label):
+def save_and_display_metric_through_epochs(epoch_range, loss, model_name, y_label):
     create_directory_if_doesnt_exist(config.SAVED_LOSS_GRAPHS_PATH)
     file_name = get_save_file_name(model_name, epoch_range[-1]) + ".png"
     plt.plot(epoch_range, loss)
