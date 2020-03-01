@@ -7,7 +7,7 @@ from models.pianocktail_gru import PianocktailGRU
 import utils
 
 
-def train(model_name=config.MODEL.value):
+def train(model_name=config.MODEL.value, epochs=config.NB_EPOCHS):
     # import data and labels
     train_spectrograms = utils.load_dump(config.DEV_DATA_PATH if config.IS_DEV_MODE else config.TRAIN_DATA_PATH)
     train_labels = utils.load_dump(config.DEV_LABELS_PATH if config.IS_DEV_MODE else config.TRAIN_LABELS_PATH)
@@ -61,7 +61,7 @@ def train(model_name=config.MODEL.value):
         print(f"Restored checkpoint. Model {checkpoint.model.name} - epoch {checkpoint.epoch.value()}")
 
     loss_history = []
-    epoch_range = range(checkpoint.epoch.value(), config.NB_EPOCHS)
+    epoch_range = range(checkpoint.epoch.value(), epochs)
 
     # for test we iterate over samples one by one
     for epoch in epoch_range:
@@ -77,7 +77,7 @@ def train(model_name=config.MODEL.value):
         checkpoint.epoch.assign_add(1)
         checkpoint_manager.save()
 
-        if epoch % config.VALIDATION_EPOCH_GAP == 0 or epoch == config.NB_EPOCHS - 1:
+        if epoch % config.VALIDATION_EPOCH_GAP == 0 or epoch == epochs - 1:
             print("======================== evaluation on validation data =========================")
             # test model on validation set
             this_val_accuracy, this_val_loss = utils.test_model(
@@ -90,7 +90,7 @@ def train(model_name=config.MODEL.value):
     utils.save_and_display_metric_through_epochs(epoch_range, loss_history, model.name, "training loss")
 
     # Plot val accuracies
-    val_range = [i for i in epoch_range if i % config.VALIDATION_EPOCH_GAP == 0 or i == config.NB_EPOCHS - 1]
+    val_range = [i for i in epoch_range if i % config.VALIDATION_EPOCH_GAP == 0 or i == epochs - 1]
     utils.save_and_display_metric_through_epochs(val_range, val_accuracies, model.name, "validation accuracy")
     utils.save_and_display_metric_through_epochs(val_range, val_losses, model.name, "validation loss")
     best_epoch = (len(val_accuracies) - list(reversed(val_accuracies)).index(
@@ -133,5 +133,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("model_name", help="name of the model to train",
                         choices=[model.value for model in config.ModelEnum])
+    parser.add_argument("--epochs", dest="epochs", help="number of epochs", type=int, required=False, default=config.NB_EPOCHS)
     args = parser.parse_args()
-    train(args.model_name)
+    train(args.model_name, args.epochs)
