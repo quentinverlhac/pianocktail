@@ -51,6 +51,7 @@ def train(model_name=config.MODEL.value):
     val_loss = tf.keras.metrics.Mean(name='val_loss')
     val_accuracy = tf.keras.metrics.BinaryAccuracy(name='val_accuracy')
     val_accuracies = []
+    val_losses = []
 
     checkpoint, checkpoint_manager = utils.setup_checkpoints(model, optimizer)
 
@@ -79,15 +80,18 @@ def train(model_name=config.MODEL.value):
         if epoch % 10 == 0 or epoch == config.NB_EPOCHS - 1:
             print("======================== evaluation on validation data =========================")
             # test model on validation set
-            val_accuracies.append(utils.test_model(
-                model, val_spectrograms, val_labels, val_loss, val_accuracy, epoch=epoch+1))
+            this_val_accuracy, this_val_loss = utils.test_model(
+                model, val_spectrograms, val_labels, val_loss, val_accuracy, epoch=epoch+1)
+            val_accuracies.append(this_val_accuracy)
+            val_losses.append(this_val_loss)
 
     utils.save_model(model, epoch)
     utils.save_and_display_loss_through_epochs(epoch_range, loss_history, model.name, "training loss")
 
     # Plot val accuracies
-    val_accuracy_range = [i for i in epoch_range if i % 10 == 0 or i == config.NB_EPOCHS - 1]
-    utils.save_and_display_loss_through_epochs(val_accuracy_range, val_accuracies, model.name, "validation accuracy")
+    val_range = [i for i in epoch_range if i % 10 == 0 or i == config.NB_EPOCHS - 1]
+    utils.save_and_display_loss_through_epochs(val_range, val_accuracies, model.name, "validation accuracy")
+    utils.save_and_display_loss_through_epochs(val_range, val_losses, model.name, "validation loss")
     best_epoch = (len(val_accuracies) - list(reversed(val_accuracies)).index(min(val_accuracies)) - 1) * 10
     print(f"Best validation loss was epoch {best_epoch}")
 
