@@ -133,6 +133,7 @@ dmypy.json
 
 # datasets
 data/
+*.mp3
 
 # saved models
 saved_models/
