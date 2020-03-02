@@ -52,11 +52,13 @@ def get_label_emotion_scores_for_track(raw_labels_df, genre, track_id):
         raise ValueError("matching_label_lists has more than one matching song: {}".format(matching_label_lists))
     return matching_label_lists[0]
 
-def thresh_label(label_list,threshold):
+
+def thresh_label(label_list, threshold):
     """
     Encode label as 0 or 1 depending on the given threshold
     """
     return [0 if label < threshold else 1 for label in label_list]
+
 
 def major_label(label_list):
     """
@@ -73,7 +75,7 @@ def get_raw_data(path):
     return segment.get_array_of_samples()
 
 
-def processing_main(args,label_encoding=config.LABEL_ENCODING):
+def processing_main(args, label_encoding=config.LABEL_ENCODING):
     """
     Import labels and samples from original dataset. 
     Process them and dump the output as pickle files.
@@ -94,7 +96,7 @@ def processing_main(args,label_encoding=config.LABEL_ENCODING):
                 if label_encoding == config.LabelEncodingEnum.MAJORITY:
                     labels.append(major_label(label))
                 elif label_encoding == config.LabelEncodingEnum.THRESHOLD:
-                    labels.append(thresh_label(label,config.EMOTION_THRESH))
+                    labels.append(thresh_label(label, config.EMOTION_THRESH))
                 else:
                     labels.append(label)
 

@@ -1,5 +1,9 @@
-import tensorflow as tf
 import argparse
+
+import numpy as np
+import pandas as pd
+from scipy.special import softmax
+import tensorflow as tf
 
 import config
 from models.pianocktail_cnn import PianocktailCNN
@@ -7,10 +11,14 @@ from models.pianocktail_gru import PianocktailGRU
 import utils
 
 
-def train(model_name=config.MODEL.value, epochs=config.NB_EPOCHS, validate=False):
+def train(model_name=config.MODEL.value, epochs=config.NB_EPOCHS, validate=False, balance=False):
     # import data and labels
     train_spectrograms = utils.load_dump(config.DEV_DATA_PATH if config.IS_DEV_MODE else config.TRAIN_DATA_PATH)
     train_labels = utils.load_dump(config.DEV_LABELS_PATH if config.IS_DEV_MODE else config.TRAIN_LABELS_PATH)
+
+    if balance:
+        # Balance train dataset
+        train_spectrograms, train_labels = balance_dataset(train_spectrograms, train_labels)
 
     if validate:
         val_spectrograms = utils.load_dump(config.VAL_DATA_PATH)
@@ -132,11 +140,54 @@ def train_step(inputs, labels, model, optimizer, train_loss, train_accuracy):
     return predictions_, labels
 
 
+def balance_dataset(data, labels):
+    """
+    Balance dataset by duplicating interesting examples, uses some randomness
+    :param data: pandas DataFrame or array-like, data before balancing
+    :param labels: pandas DataFrame or array-like, labels before balancing
+    :return: tuple, list of indexes to use from original data (will have some duplicate indexes) and duplicated labels
+    """
+    labels = pd.DataFrame(labels)
+    data = pd.DataFrame(data)
+    labels["index"] = list(labels.index)
+    iteration = 0
+    print("========== label proportions before balancing (major class / minor class) ==========")
+    print(_get_proportions(labels.drop("index", axis=1)))
+    while iteration < 200:
+        id_ = _get_proportions(labels.drop("index", axis=1)).idxmax()
+        minor_class = labels.iloc[:, id_].value_counts().idxmin()
+        duplicable_labels = labels.loc[:, id_] == minor_class
+        temp_df = labels[duplicable_labels].drop_duplicates(subset=["index"]).drop("index", axis=1)
+        scores = temp_df.apply(_score_sample, axis=1, args=[labels.drop("index", axis=1)])
+        duplicate_probability = softmax(scores)
+        chosen_id = np.random.choice(list(duplicate_probability.index), p=list(duplicate_probability.values))
+        labels = labels.append(labels.iloc[chosen_id, :], ignore_index=True)
+        data = data.append(data.iloc[chosen_id, :], ignore_index=True)
+        iteration += 1
+    print("========== label proportions before balancing (major class / minor class) ==========")
+    print(_get_proportions(labels.drop("index", axis=1)))
+    print("========== value counts of most duplicated examples after balancing ==========")
+    print(labels["index"].value_counts()[:10])
+    return [spectrogram[0] for spectrogram in data.to_numpy()], labels.drop("index", axis=1).to_numpy()
+
+
+def _get_proportions(labels):
+    value_counts = labels.apply(lambda x: x.value_counts())
+    proportions = value_counts.max() / value_counts.min()
+    return proportions
+
+
+def _score_sample(sample, labels):
+    major_classes = labels.apply(lambda x: x.value_counts().idxmax())
+    return (~(sample == major_classes)).sum()
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("model_name", help="name of the model to train",
                         choices=[model.value for model in config.ModelEnum])
+    parser.add_argument("--balance", action="store_true", help="balance train dataset")
     parser.add_argument("--epochs", dest="epochs", help="number of epochs", type=int, required=False, default=config.NB_EPOCHS)
     parser.add_argument("--validate", action="store_true", help="tests of validation set if True")
     args = parser.parse_args()
-    train(args.model_name, args.epochs, args.validate)
+    train(args.model_name, args.epochs, args.validate, args.balance)

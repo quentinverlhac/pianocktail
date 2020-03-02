@@ -10,10 +10,12 @@ IS_VERBOSE = False
 RANDOM_PICK = True
 SEQUENTIAL_TRAINING = False
 
+
 # Model
 class ModelEnum(Enum):
     PIANOCKTAIL_CNN = "PianocktailCNN"
     PIANOCKTAIL_GRU = "PianocktailGRU"
+
 
 MODEL = ModelEnum.PIANOCKTAIL_GRU
 
@@ -50,11 +52,14 @@ EMOTIFY_EMOTIONS_ORDERED_LIST = ["amazement", "solemnity", "tenderness", "nostal
 NUMBER_OF_EMOTIONS = len(EMOTIFY_EMOTIONS_ORDERED_LIST)
 
 # Label encoding
-EMOTION_THRESH = 0.2
+EMOTION_THRESH = 0.3
+
+
 class LabelEncodingEnum(Enum):
     PROBA = "proba"
     MAJORITY = "majority"
     THRESHOLD = "threshold"
+
 
 LABEL_ENCODING = LabelEncodingEnum.THRESHOLD
 
