@@ -18,19 +18,19 @@ class PianocktailCNN(Model):
 
         self.pooling1 = AveragePooling2D(pool_size=2,name=f"{name}_pool1")
 
-        self.dropout1 = Dropout(0.1,name=f"{name}_dropout1")
+        self.dropout1 = Dropout(0.3,name=f"{name}_dropout1")
 
         self.conv2 = Conv2D(filters=16,kernel_size=5,activation=tf.nn.relu,name=f"{name}_conv2")
 
         self.pooling2 = AveragePooling2D(pool_size=2,name=f"{name}_pool2")
 
-        self.dropout2 = Dropout(0.1,name=f"{name}_dropout2")
+        self.dropout2 = Dropout(0.3,name=f"{name}_dropout2")
 
         self.flatten = Flatten(name=f"{name}_flatten")
 
         self.dense1 = Dense(200,activation=tf.nn.relu,name=f"{name}_dense1")
 
-        self.dropout3 = Dropout(0.1,name=f"{name}_dropout3")
+        self.dropout3 = Dropout(0.3,name=f"{name}_dropout3")
 
         self.dense2 = Dense(config.NUMBER_OF_EMOTIONS, activation=tf.nn.sigmoid, name=f"{name}_output")
 

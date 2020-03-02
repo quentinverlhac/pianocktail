@@ -7,13 +7,14 @@ from models.pianocktail_gru import PianocktailGRU
 import utils
 
 
-def train(model_name=config.MODEL.value, epochs=config.NB_EPOCHS):
+def train(model_name=config.MODEL.value, epochs=config.NB_EPOCHS, validate=False):
     # import data and labels
     train_spectrograms = utils.load_dump(config.DEV_DATA_PATH if config.IS_DEV_MODE else config.TRAIN_DATA_PATH)
     train_labels = utils.load_dump(config.DEV_LABELS_PATH if config.IS_DEV_MODE else config.TRAIN_LABELS_PATH)
 
-    val_spectrograms = utils.load_dump(config.VAL_DATA_PATH)
-    val_labels = utils.load_dump(config.VAL_LABELS_PATH)
+    if validate:
+        val_spectrograms = utils.load_dump(config.VAL_DATA_PATH)
+        val_labels = utils.load_dump(config.VAL_LABELS_PATH)
 
     # generate and batch datasets
     def generate_subspectrogram(duration_s=config.SUBSPECTROGRAM_DURATION_S, fft_rate=config.FFT_RATE):
@@ -47,11 +48,12 @@ def train(model_name=config.MODEL.value, epochs=config.NB_EPOCHS):
     train_loss = tf.keras.metrics.Mean(name='train_loss')
     train_accuracy = tf.keras.metrics.BinaryAccuracy(name='train_accuracy')
 
-    # Val metrics
-    val_loss = tf.keras.metrics.Mean(name='val_loss')
-    val_accuracy = tf.keras.metrics.BinaryAccuracy(name='val_accuracy')
-    val_accuracies = []
-    val_losses = []
+    if validate:
+        # Val metrics
+        val_loss = tf.keras.metrics.Mean(name='val_loss')
+        val_accuracy = tf.keras.metrics.BinaryAccuracy(name='val_accuracy')
+        val_accuracies = []
+        val_losses = []
 
     checkpoint, checkpoint_manager = utils.setup_checkpoints(model, optimizer)
 
@@ -77,7 +79,7 @@ def train(model_name=config.MODEL.value, epochs=config.NB_EPOCHS):
         checkpoint.epoch.assign_add(1)
         checkpoint_manager.save()
 
-        if epoch % config.VALIDATION_EPOCH_GAP == 0 or epoch == epochs - 1:
+        if (epoch % config.VALIDATION_EPOCH_GAP == 0 or epoch == epochs - 1) and validate:
             print("======================== evaluation on validation data =========================")
             # test model on validation set
             this_val_accuracy, this_val_loss = utils.test_model(
@@ -89,13 +91,14 @@ def train(model_name=config.MODEL.value, epochs=config.NB_EPOCHS):
     utils.save_model(model, epoch)
     utils.save_and_display_metric_through_epochs(epoch_range, loss_history, model.name, "training loss")
 
-    # Plot val accuracies
-    val_range = [i for i in epoch_range if i % config.VALIDATION_EPOCH_GAP == 0 or i == epochs - 1]
-    utils.save_and_display_metric_through_epochs(val_range, val_accuracies, model.name, "validation accuracy")
-    utils.save_and_display_metric_through_epochs(val_range, val_losses, model.name, "validation loss")
-    best_epoch = (len(val_accuracies) - list(reversed(val_accuracies)).index(
-        min(val_accuracies)) - 1) * config.VALIDATION_EPOCH_GAP
-    print(f"Best validation loss was epoch {best_epoch}")
+    if validate:
+        # Plot val accuracies
+        val_range = [i for i in epoch_range if i % config.VALIDATION_EPOCH_GAP == 0 or i == epochs - 1]
+        utils.save_and_display_metric_through_epochs(val_range, val_accuracies, model.name, "validation accuracy")
+        utils.save_and_display_metric_through_epochs(val_range, val_losses, model.name, "validation loss")
+        best_epoch = (len(val_accuracies) - list(reversed(val_accuracies)).index(
+            min(val_accuracies)) - 1) * config.VALIDATION_EPOCH_GAP
+        print(f"Best validation loss was epoch {best_epoch}")
 
 
 # declaring forward pass and gradient descent
@@ -134,5 +137,6 @@ if __name__ == '__main__':
     parser.add_argument("model_name", help="name of the model to train",
                         choices=[model.value for model in config.ModelEnum])
     parser.add_argument("--epochs", dest="epochs", help="number of epochs", type=int, required=False, default=config.NB_EPOCHS)
+    parser.add_argument("--validate", action="store_true", help="tests of validation set if True")
     args = parser.parse_args()
-    train(args.model_name, args.epochs)
+    train(args.model_name, args.epochs, args.validate)
